@@ -1,28 +1,28 @@
 
 # coding: utf-8
 
-# In[107]:
+# In[7]:
 
 
 from selenium import webdriver
 from bs4 import BeautifulSoup
 
 
-# In[108]:
+# In[8]:
 
 
-main_driver = webdriver.Chrome('/home/kmh/tools/chromedriver')
-sub_driver = webdriver.Chrome('/home/kmh/tools/chromedriver')
+main_driver = webdriver.Chrome('chromedriver')
+sub_driver = webdriver.Chrome('chromedriver')
 #driver.implicitly_wait(3)
 
 
-# In[109]:
+# In[9]:
 
 
 main_driver.get('https://www.ncbi.nlm.nih.gov/pubmed/?term=hasstructuredabstract')
 
 
-# In[110]:
+# In[10]:
 
 
 for i in range(0, 181260, 1) :
@@ -34,6 +34,7 @@ for i in range(0, 181260, 1) :
 
         for node in xml.findAll('abstracttext') :
             print(node['label'])
+            print(node.text)
             
         print('\n')
     main_driver.find_element_by_class_name('next').click()
