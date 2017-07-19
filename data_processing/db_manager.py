@@ -21,12 +21,25 @@ class DB_manager:
     def sql_insert_into_sentence(self, pmid, section, original_section, sentence):
         return "insert into sentence(`pmid`, `section`, `original_section`, `sentence`) values('" + pmid + "', '" + section  + "', '" + original_section + "', '" + sentence + "'); "
 
+    def sql_get_all_sentence(self, pmid, sections, original_sections, sentences):
+        sql = ''
+        
+        if sections == '-' :
+            for sentence in sentences[0] :
+                sql += self.sql_insert_into_sentence(pmid, '-', '-', sentence)
+        else :
+            for index, section in enumerate(sections) :
+                for sentence in sentences[index] :
+                    sql += self.sql_insert_into_sentence(pmid, sections[index], original_sections[index], sentence)
+        
+        return sql
+    
     def commit(self, sql):
         self.cursor.execute(sql)
         self.connection.commit()
 
     def finish(self):
-        self.connection.cursor.close()
+        self.connection.close()
 
 if __name__ == "__main__":
     db = DB_manager()
