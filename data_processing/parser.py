@@ -92,6 +92,6 @@ class Parser:
         print('Original Labels:  ' + ', '.join(self.get_origin_label()))
         print('Mapping Labels:  ' + ', '.join(self.get_map_label()))
         for section in self.get_sentence() :
-            for sentence in section[:-3] :
+            for sentence in section :
                 print(sentence)
         print('\n\n')
