@@ -36,44 +36,44 @@ class Parser:
     def get_abstract(self):
         abstract = ''
         
-        if self.su == 's' :
-            for node in self.article.select('abstract sec') :
-                if node.p != None :
+        if self.su == 's':
+            for node in self.article.select('abstract sec'):
+                if node.p != None:
                     abstract += node.p.text
                 
-        if self.su == 'u' :
+        if self.su == 'u':
             abstract = self.article.select('abstract')[0].p.text 
             
         return abstract.replace("'", "")
     
     def get_origin_label(self):
-        if self.su == 'u' :
+        if self.su == 'u':
             return '-'
         
         origin_label = []
-        for node in self.article.select('abstract sec') :
-            if node.p != None :
+        for node in self.article.select('abstract sec'):
+            if node.p != None:
                 origin_label.append(node.title.text.upper().replace(":", ""))
         return origin_label
             
     def get_map_label(self):
-        if self.su == 'u' :
+        if self.su == 'u':
             return '-'
         
         map_label = []
-        for label in self.get_origin_label() :
+        for label in self.get_origin_label():
             map_label.append(self.labels[label])
         return map_label
     
     def get_sentence(self):
         sentences = []
         
-        if self.su == 's' :
-            for node in self.article.select('abstract sec') :
-                if node.p != None :
+        if self.su == 's':
+            for node in self.article.select('abstract sec'):
+                if node.p != None:
                     sentences.append(self.classify_sentence(node.p.text.replace("'", "")))
         
-        if self.su == 'u' :
+        if self.su == 'u':
             sentences.append(self.classify_sentence(self.get_abstract()))
 
         return sentences
@@ -94,7 +94,7 @@ class Parser:
         print('S/U:  ' + self.get_su())
         print('Original Labels:  ' + ', '.join(self.get_origin_label()))
         print('Mapping Labels:  ' + ', '.join(self.get_map_label()))
-        for section in self.get_sentence() :
-            for sentence in section :
+        for section in self.get_sentence():
+            for sentence in section:
                 print(sentence)
         print('\n\n')

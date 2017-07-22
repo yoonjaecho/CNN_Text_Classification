@@ -24,12 +24,12 @@ class DB_manager:
     def sql_get_all_sentence(self, pmid, sections, original_sections, sentences):
         sql = ''
         
-        if sections == '-' :
-            for sentence in sentences[0] :
+        if sections == '-':
+            for sentence in sentences[0]:
                 sql += self.sql_insert_into_sentence(pmid, '-', '-', sentence)
-        else :
-            for index, section in enumerate(sections) :
-                for sentence in sentences[index] :
+        else:
+            for index, section in enumerate(sections):
+                for sentence in sentences[index]:
                     sql += self.sql_insert_into_sentence(pmid, sections[index], original_sections[index], sentence)
         
         return sql
