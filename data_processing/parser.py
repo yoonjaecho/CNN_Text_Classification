@@ -66,7 +66,7 @@ class Parser:
             abstract = self.article.select('abstract')[0].p.text 
             
         return abstract.replace("'", "")
-    2
+    
     def get_origin_label(self):
         if self.su == 'u':
             return '-'
