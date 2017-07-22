@@ -38,7 +38,8 @@ class Parser:
         
         if self.su == 's' :
             for node in self.article.select('abstract sec') :
-                abstract += node.p.text
+                if node.p != None :
+                    abstract += node.p.text
                 
         if self.su == 'u' :
             abstract = self.article.select('abstract')[0].p.text 
@@ -51,7 +52,8 @@ class Parser:
         
         origin_label = []
         for node in self.article.select('abstract sec') :
-            origin_label.append(node.title.text.upper())
+            if node.p != None :
+                origin_label.append(node.title.text.upper().replace(":", ""))
         return origin_label
             
     def get_map_label(self):
@@ -59,8 +61,8 @@ class Parser:
             return '-'
         
         map_label = []
-        for node in self.article.select('abstract sec') :
-            map_label.append(self.labels[node.title.text.upper()])
+        for label in self.get_origin_label() :
+            map_label.append(self.labels[label])
         return map_label
     
     def get_sentence(self):
@@ -68,7 +70,8 @@ class Parser:
         
         if self.su == 's' :
             for node in self.article.select('abstract sec') :
-                sentences.append(self.classify_sentence(node.p.text.replace("'", "")))
+                if node.p != None :
+                    sentences.append(self.classify_sentence(node.p.text.replace("'", "")))
         
         if self.su == 'u' :
             sentences.append(self.classify_sentence(self.get_abstract()))
