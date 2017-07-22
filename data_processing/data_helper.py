@@ -10,7 +10,7 @@ class Main:
         self.db_manager = db_manager.DB_manager()
         
         self.file_fail_list = open('fail_list.txt', 'w')
-        self.file_checkpoint =  open('.checkpoint', 'r+')
+        self.file_checkpoint =  open('checkpoint', 'r+')
         self.checkpoint = int(list(map(lambda s : s.strip(), self.file_checkpoint.readlines()))[-1].split(' | ')[0])
 
     def run(self):
@@ -19,8 +19,11 @@ class Main:
         fail_number = 0
         
         print('\n* Start Checkpoint: %d\n' % self.checkpoint)
+        
         for xml in xmls[self.checkpoint:]:
-            print('%d / %d, Success : %d, Fail: %d' % (self.checkpoint + 1, total_number, self.checkpoint - fail_number + 1, fail_number))
+            if self.checkpoint % 10 == 0:
+                print('%d / %d, Success : %d, Fail: %d' 
+                      % (self.checkpoint + 1, total_number, self.checkpoint - fail_number + 1, fail_number))
             self.checkpoint += 1
 
             try:
@@ -34,8 +37,10 @@ class Main:
                 
             except Exception as error:
                 fail_number += 1
+                print('%d / %d, Success : %d, Fail: %d' 
+                      % (self.checkpoint + 1, total_number, self.checkpoint - fail_number + 1, fail_number))
                 print('********************  ' + str(xml) + '  ->  ' + str(error))
-                self.file_fail_list.write(str(xml) + '\n')
+                self.file_fail_list.write(str(xml) + '  ->  ' + str(error) + '\n')
                 continue
         
         self.file_checkpoint.write('\n' + str(self.checkpoint) + ' | ' + str(datetime.datetime.now()))

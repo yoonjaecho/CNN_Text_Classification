@@ -11,7 +11,7 @@ class Parser:
         self.article = ''
         self.su = ''
         self.labels = {}
-        for line in open(file_labels, 'r').readlines() :
+        for line in open(file_labels, 'r').readlines():
             label = line.split('|')
             self.labels[label[0]] = label[1]
     
@@ -21,14 +21,35 @@ class Parser:
         self.su = 's' if len(self.article.select('abstract sec')) != 0 else 'u'
         
     def get_pmid(self):
-        for node in self.article.select('article-id') :
-            if node['pub-id-type'] == 'pmid' :
+        for node in self.article.select('article-id'):
+            if node['pub-id-type'] == 'pmid':
                 return node.text
             
     def get_ppub(self):
-        for node in self.article.select('pub-date') :
-            if node['pub-type'] == 'ppub' :
-                return '%s%02d' % (node.year.text, int(node.month.text))
+        
+        for node in self.article.select('pub-date'):
+            if node['pub-type'] == 'ppub':
+                p_date = ''
+                if node.year != None:
+                    p_date += '%s' %(node.year.text)
+                    
+                if node.month != None:
+                    p_date += '%02d' %(int(node.month.text))
+                else:
+                    p_date += '00'
+                return p_date
+            
+        for node in self.article.select('pub-date'):
+            if node['pub-type'] == 'epub':
+                e_date = ''
+                if node.year != None:
+                    e_date += '%s' %(node.year.text)
+                    
+                if node.month != None:
+                    e_date += '%02d' %(int(node.month.text))
+                else:
+                    e_date += '00'
+                return e_date
             
     def get_su(self):
         return self.su
@@ -45,7 +66,7 @@ class Parser:
             abstract = self.article.select('abstract')[0].p.text 
             
         return abstract.replace("'", "")
-    
+    2
     def get_origin_label(self):
         if self.su == 'u':
             return '-'
@@ -86,7 +107,7 @@ class Parser:
         stdout, stderr = process_nlp.communicate(content.encode())
         return stdout.decode().split('\n')[:-3]
         
-    def print(self):
+    def print_article(self):
         print(self.path_article)
         print('PMID:  ' + self.get_pmid())
         print('PPUB:  ' + self.get_ppub())
