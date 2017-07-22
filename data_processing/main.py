@@ -2,7 +2,7 @@ import db_manager
 import parser
 import datetime
 
-path_target = '/home/kmh/Dataset/articles.A-B.xml'
+path_target = './data/articles.A-B.xml'
 
 class Main:
     def __init__(self):
@@ -17,25 +17,22 @@ class Main:
         xmls = list(map(lambda s : s.strip(), open(path_target + '.txt', 'r').readlines()))
         total_number = len(xmls)
         fail_number = 0
-               
+        
         print('\n* Start Checkpoint: %d\n' % self.checkpoint)
-        for xml in xmls[self.checkpoint:] :
-            print('%d / %d, Fail: %d' % (self.checkpoint + 1, total_number, fail_number))
+        for xml in xmls[self.checkpoint:]:
+            print('%d / %d, Success : %d, Fail: %d' % (self.checkpoint + 1, total_number, self.checkpoint - fail_number + 1, fail_number))
             self.checkpoint += 1
 
-            try :
+            try:
                 self.parser.set_article(path_target + '/' + xml)
                 sql = self.db_manager.sql_insert_into_pmid(self.parser.get_pmid(), self.parser.get_abstract())                         + self.db_manager.sql_insert_into_abstract(self.parser.get_pmid(), self.parser.get_su(), self.parser.get_ppub())                         + self.db_manager.sql_get_all_sentence(self.parser.get_pmid(), self.parser.get_map_label(), self.parser.get_origin_label(), self.parser.get_sentence())
                 self.db_manager.commit(sql.encode())
-            
-#                 self.parser.print()
-#                 print(sql)
-#                 print('\n\n')
 
-            except KeyboardInterrupt :
+            except KeyboardInterrupt:
                 print('\n* Save Checkpoint: %d' % self.checkpoint)
                 break
-            except Exception as error :
+                
+            except Exception as error:
                 fail_number += 1
                 print('********************  ' + str(xml) + '  ->  ' + str(error))
                 self.file_fail_list.write(str(xml) + '\n')
