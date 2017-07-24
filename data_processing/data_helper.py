@@ -62,7 +62,7 @@ class Main:
                 self.file_fail_list.write(err_message + '\n')
                 continue
                 
-            if self.checkpoint % 1 == 0:
+            if self.checkpoint % 10 == 0:
                 print('%d / %d, Success : %d, Fail: %d' 
                       % (self.checkpoint + 1, total_number, self.checkpoint - self.fail_number + 1, self.fail_number))
                 
