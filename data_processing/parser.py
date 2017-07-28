@@ -83,7 +83,10 @@ class Parser:
         
         map_label = []
         for label in self.get_origin_label():
-            map_label.append(self.labels[label])
+            if label in self.labels:
+                map_label.append(self.labels[label])
+            else:
+                map_label.append('-')
         return map_label
     
     def get_sentence(self):
