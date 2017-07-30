@@ -12,15 +12,6 @@ class DataHelper:
         self.path_target = path_target
         self.pid = os.getpid()
 
-    '''    
-        if init_check != None:
-            print("Data processing starts at", init_check)
-            self.file_checkpoint = open(init_check, 'r+')
-        else:
-            print("First data processing..")
-            d = datetime.datetime.now().strftime('%Y%m%d_%H:%M:%S')
-    '''
-
     def terminate(self):
         self.db_manager.finish()
 
@@ -45,7 +36,6 @@ class DataHelper:
                                                             self.parser.get_origin_label(),
                                                             self.parser.get_sentence())
                 self.db_manager.commit(sql.encode())
-
                 print("Success")
 
             except KeyboardInterrupt:

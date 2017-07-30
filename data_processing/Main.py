@@ -5,8 +5,6 @@ import DataHelper
 from multiprocessing import Process, Queue
 
 path_target = './data/articles.A-B.xml'
-#path_target = './data/temp'
-
 core_number = 4
 
 class Main:
@@ -38,12 +36,14 @@ class Main:
 
     def parallelize(self):
         for index, pair in enumerate(self.index_pairs):
-            proc = Process(target=DataHelper.DataHelper(self.queue, path_target).run, args=(pair[0], pair[1]))
+            proc = Process(target=self.data_helper.run, args=(pair[0], pair[1]))
             self.procs.append(proc)
             proc.start()
 
         for proc in self.procs:
             proc.join()
+
+        # TODO : Store checkpoint, Error handling child process
 
         print('* Elapsed Time : ' + str(datetime.datetime.now() - startTime) + '\n')
 
