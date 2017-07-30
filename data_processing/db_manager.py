@@ -34,6 +34,9 @@ class DB_manager:
         
         return sql
     
+    def sql_insert_into_fail(self, file_name, error):
+        return "insert into fail (`file_name`, `error`) values('" + file_name + "', '" + error + "');"
+    
     def commit(self, sql):
         self.cursor.execute(sql)
         self.connection.commit()
