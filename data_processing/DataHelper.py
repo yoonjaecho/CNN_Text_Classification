@@ -1,19 +1,19 @@
-import db_manager
-import parser
+import DBManager
+import Parser
 import datetime
 import sys
 import os
 
 class DataHelper:
     def __init__(self, queue, path_target):
-        self.parser = parser.Parser()
-        self.db_manager = db_manager.DB_manager()
+        self.parser = Parser.Parser()
+        self.db = DBManager.DBManager()
         self.queue = queue
         self.path_target = path_target
         self.pid = os.getpid()
 
     def terminate(self):
-        self.db_manager.finish()
+        self.db.finish()
 
     def run(self, start_index, end_index):
         xmls = list(map(lambda s : s.strip(), open(self.path_target + '.txt', 'r').readlines()))
@@ -26,16 +26,16 @@ class DataHelper:
 
             try:
                 self.parser.set_article(self.path_target + '/' + xml)
-                sql = self.db_manager.sql_insert_into_pmid(self.parser.get_pmid(),
+                sql = self.db.sql_insert_into_pmid(self.parser.get_pmid(),
                                                            self.parser.get_abstract()) 
-                sql += self.db_manager.sql_insert_into_abstract(self.parser.get_pmid(),
+                sql += self.db.sql_insert_into_abstract(self.parser.get_pmid(),
                                                                 self.parser.get_su(),
                                                                 self.parser.get_ppub()) 
-                sql += self.db_manager.sql_get_all_sentence(self.parser.get_pmid(),
+                sql += self.db.sql_get_all_sentence(self.parser.get_pmid(),
                                                             self.parser.get_map_label(),
                                                             self.parser.get_origin_label(),
                                                             self.parser.get_sentence())
-                self.db_manager.commit(sql.encode())
+                self.db.commit(sql.encode())
                 print("Success")
 
             except KeyboardInterrupt:
@@ -44,9 +44,9 @@ class DataHelper:
                 break
                 
             except Exception as error:
-                sql = self.db_manager.sql_insert_into_fail(str(xml),
+                sql = self.db.sql_insert_into_fail(str(xml),
                                                            str(error))
-                self.db_manager.commit(sql.encode())
+                self.db.commit(sql.encode())
                 print("Error")
                 continue
 
