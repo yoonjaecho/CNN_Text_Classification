@@ -12,30 +12,36 @@ class Main:
         self.queue = Queue()
         self.index_pairs = []
         self.procs = []
+        self.progress = 0
 
         if checkpoint is None:
             d = datetime.datetime.now().strftime('%Y%m%d_%H:%M:%S')
             self.file_checkpoint = open('./checkpoint/checkpoint_' + d, 'w+')
 
-            total_number = sum(1 for line in open(path_target + '.txt'))
-            print("Total number of data:", total_number)
+            self.total_number = sum(1 for line in open(path_target + '.txt'))
+            print("Total number of data:", self.total_number)
 
-            q = int(total_number / core_number)
+            q = int(self.total_number / core_number)
             for i in range(core_number):
                 start_index = i*q
-                end_index = total_number if i == core_number-1 else (i+1)*q-1
+                end_index = self.total_number if i == core_number - 1 else (i+1)*q-1
                 self.index_pairs.append((start_index, end_index))
 
-            print("Starting point: " + str(self.index_pairs) + '\n')
+            print("Checkpoint: " + str(self.index_pairs) + '\n')
 
         else:
             self.file_checkpoint = open(checkpoint, 'r+')
 
             latest_pairs = list(map(lambda s : s.strip(), self.file_checkpoint.readlines()))[-1].split(' , ')
-            for pair in latest_pairs:
-                start_index, end_index = pair.split(' / ')
-                self.index_pairs.append((int(start_index), int(end_index)))
-
+            for index, pair in enumerate(latest_pairs):
+                if index != core_number:
+                    print(pair)
+                    start_index, end_index = pair.split(' / ')
+                    self.index_pairs.append((int(start_index), int(end_index)))
+                else:
+                    self.progress = int(pair.split(' / ')[0])
+                    self.total_number = int(pair.split(' / ')[1])
+                    
             print("index_pairs:", self.index_pairs)
 
     def parallelize(self):
@@ -55,7 +61,7 @@ class Main:
                     if proc.is_alive() == False:
                         alive_core -= 1
 
-            print("\nKEYBOARD INTERRUPT")
+            print("\nKEYBOARD INTERRUPT !!\n")
 
             check_message = ''
             pairs = []
@@ -63,11 +69,13 @@ class Main:
                 pairs.append(self.queue.get())
 
             pairs.sort()
-            for index, pair in enumerate(pairs):
-                check_message += str(pair[0]) + ' / ' + str(pair[1])
-                check_message += ' , ' if index != core_number-1 else '\n'
+            for pair in pairs:
+                check_message += str(pair[0]) + ' / ' + str(pair[1]) + ' , '
+                self.progress += int(pair[2])
+            check_message += str(self.progress) + ' / ' + str(self.total_number) + '\n'
+            print('{}/{} : {:.2f} % complete..\n'.format(self.progress, self.total_number, self.progress / self.total_number * 100))
+            #print(str(self.progress) + ' / ' + str(self.total_number) + ', ' + str(self.progress / self.total_number * 100) + '% complete..')
 
-            print(check_message)
             self.file_checkpoint.write(check_message)
             self.file_checkpoint.close()
 
