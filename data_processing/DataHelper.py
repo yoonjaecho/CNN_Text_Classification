@@ -10,7 +10,6 @@ class DataHelper:
         self.db = DBManager.DBManager()
         self.queue = queue
         self.path_target = path_target
-        self.pid = os.getpid()
 
     def terminate(self):
         self.db.finish()
@@ -19,11 +18,10 @@ class DataHelper:
         xmls = list(map(lambda s : s.strip(), open(self.path_target + '.txt', 'r').readlines()))
         total_number = len(xmls)
         checkpoint = start_index
-        print('* Start Checkpoint: %d\n' % checkpoint)
+
+        print('* Start Checkpoint: %d' % checkpoint)
         
         for xml in xmls[start_index:end_index+1]:
-            print(self.pid, "is running at",checkpoint)
-
             try:
                 self.parser.set_article(self.path_target + '/' + xml)
                 sql = self.db.sql_insert_into_pmid(self.parser.get_pmid(),
@@ -36,20 +34,19 @@ class DataHelper:
                                                             self.parser.get_origin_label(),
                                                             self.parser.get_sentence())
                 self.db.commit(sql.encode())
-                print("Success")
 
             except KeyboardInterrupt:
-                print('\n* Save Checkpoint: %d' % checkpoint)
-                self.queue.put(checkpoint, end_index)
+                print('* Save Checkpoint: %d' % checkpoint)
+                self.queue.put((checkpoint, end_index))
                 break
                 
             except Exception as error:
-                sql = self.db.sql_insert_into_fail(str(xml),
-                                                           str(error))
+                sql = self.db.sql_insert_into_fail(str(xml), str(error))
                 self.db.commit(sql.encode())
-                print("Error")
+                print(str(xml) + " [" + str(checkpoint) + "/" + str(end_index) + "] -> " + str(error))
+                checkpoint += 1
                 continue
 
             checkpoint += 1
-                
+
         self.terminate()
