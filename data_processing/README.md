@@ -1,10 +1,11 @@
 # Data processing module
-Starting at first.
+
+### Starting at first
 ```shell
-$ python data_helper.py
+$ python Main.py
 ```
 
-Starting at specific checkpoint.
+### Starting at specific checkpoint
 ```shell
-$ python data_helper.py checkpoint/checkpoint_..
+$ python Main.py checkpoint/checkpoint_..
 ```
