@@ -12,7 +12,6 @@ class Main:
         self.queue = Queue()
         self.index_pairs = []
         self.procs = []
-        self.data_helper = DataHelper.DataHelper(self.queue, path_target)
 
         if checkpoint is None:
             d = datetime.datetime.now().strftime('%Y%m%d_%H:%M:%S')
@@ -36,7 +35,7 @@ class Main:
 
     def parallelize(self):
         for index, pair in enumerate(self.index_pairs):
-            proc = Process(target=self.data_helper.run, args=(pair[0], pair[1]))
+            proc = Process(target=DataHelper.DataHelper(self.queue, path_target).run, args=(pair[0], pair[1]))
             self.procs.append(proc)
             proc.start()
 
