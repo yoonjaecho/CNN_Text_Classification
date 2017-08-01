@@ -69,7 +69,6 @@ class Main:
                 self.progress += int(pair[2])
             check_message += str(self.progress) + ' / ' + str(self.total_number) + '\n'
             print('{}/{} : {:.2f} % complete..\n'.format(self.progress, self.total_number, self.progress / self.total_number * 100))
-            #print(str(self.progress) + ' / ' + str(self.total_number) + ', ' + str(self.progress / self.total_number * 100) + '% complete..')
 
             self.file_checkpoint.write(check_message)
             self.file_checkpoint.close()
