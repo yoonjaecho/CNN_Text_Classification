@@ -20,7 +20,7 @@ class Main:
             q = int(self.total_number / core_number)
             
             for i in range(core_number):
-                start_index = index * q
+                start_index = i * q
                 end_index = self.total_number if i == core_number - 1 else (i + 1) * q - 1
                 self.index_pairs.append((start_index, end_index))
                 
