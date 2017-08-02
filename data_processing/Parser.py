@@ -7,7 +7,7 @@ file_labels = 'data/Structured-Abstracts-Labels-102615.txt'
 
 class Parser:
     def __init__(self):
-        self.path_article = ''
+        self.file_article = ''
         self.article = ''
         self.su = ''
         self.labels = {}
@@ -15,9 +15,9 @@ class Parser:
             label = line.split('|')
             self.labels[label[0]] = label[1]
     
-    def set_article(self, path_article):
-        self.path_article = path_article
-        self.article = BeautifulSoup(open(path_article, 'r').read(), 'html.parser')
+    def set_article(self, file_article):
+        self.file_article = file_article
+        self.article = BeautifulSoup(open(file_article, 'r').read(), 'html.parser')
         self.su = 's' if len(self.article.select('abstract sec')) != 0 else 'u'
         
     def get_pmid(self):
@@ -111,7 +111,7 @@ class Parser:
         return stdout.decode().split('\n')[:-3]
         
     def print_article(self):
-        print(self.path_article)
+        print(self.file_article)
         print('PMID:  ' + self.get_pmid())
         print('PPUB:  ' + self.get_ppub())
         print('ABSTRACT:  ' + self.get_abstract())

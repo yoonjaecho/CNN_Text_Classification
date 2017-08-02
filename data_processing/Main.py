@@ -4,7 +4,7 @@ import sys
 import DataHelper
 from multiprocessing import Process, Queue
 
-path_target = './data/articles.A-B.xml'
+file_name_list = './data/articles.A-Z.xml.txt'
 core_number = 4
 
 class Main:
@@ -16,7 +16,7 @@ class Main:
 
         if checkpoint is None:
             self.file_checkpoint = open('./checkpoint/checkpoint_' + datetime.datetime.now().strftime('%Y%m%d_%H:%M:%S'), 'w+')
-            self.total_number = sum(1 for line in open(path_target + '.txt'))
+            self.total_number = sum(1 for line in open(file_name_list))
             q = int(self.total_number / core_number)
             
             for i in range(core_number):
@@ -40,7 +40,7 @@ class Main:
     def parallelize(self):
         try:
             for index, pair in enumerate(self.index_pairs):
-                proc = Process(target=DataHelper.DataHelper(self.queue, path_target).run, args=(pair[0], pair[1]))
+                proc = Process(target=DataHelper.DataHelper(self.queue, file_name_list).run, args=(pair[0], pair[1]))
                 self.procs.append(proc)
                 proc.start()
 
