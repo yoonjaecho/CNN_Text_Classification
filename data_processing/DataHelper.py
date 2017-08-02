@@ -39,7 +39,7 @@ class DataHelper:
                 self.queue.put((checkpoint, end_index, progess))
                 self.terminate()
                 return
-                
+            
             except Exception as error:
                 fail_sql = self.db.sql_insert_into_fail(str(xml), str(error).replace("'", ""))
                 self.db.commit(fail_sql.encode())
@@ -50,5 +50,5 @@ class DataHelper:
 
         # Finish work at this process
         print('A subprocess finished at {}'.format(end_index))
-        self.queue.put((checkpoint - 1, end_index, progess))
+        self.queue.put((checkpoint, end_index, progess))
         self.terminate()

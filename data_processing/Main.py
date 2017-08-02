@@ -22,7 +22,7 @@ class Main:
             
             for i in range(core_number):
                 start_index = i * q
-                end_index = self.total_number if i == core_number - 1 else (i + 1) * q - 1
+                end_index = self.total_number - 1 if i == core_number - 1 else (i + 1) * q - 1
                 self.index_pairs.append((start_index, end_index))
                 
         else:
