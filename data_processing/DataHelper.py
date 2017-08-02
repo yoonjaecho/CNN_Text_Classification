@@ -24,14 +24,14 @@ class DataHelper:
             try:
                 self.parser.set_article(xml)
                 sql = self.db.sql_insert_into_pmid(self.parser.get_pmid(),
-                                                           self.parser.get_abstract()) 
+                                                   self.parser.get_abstract()) 
                 sql += self.db.sql_insert_into_abstract(self.parser.get_pmid(),
-                                                                self.parser.get_su(),
-                                                                self.parser.get_ppub()) 
+                                                        self.parser.get_su(),
+                                                        self.parser.get_ppub()) 
                 sql += self.db.sql_get_all_sentence(self.parser.get_pmid(),
-                                                            self.parser.get_map_label(),
-                                                            self.parser.get_origin_label(),
-                                                            self.parser.get_sentence())
+                                                    self.parser.get_map_label(),
+                                                    self.parser.get_origin_label(),
+                                                    self.parser.get_sentence())
                 
                 self.db.commit(sql.encode())
 
