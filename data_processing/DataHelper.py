@@ -17,7 +17,6 @@ class DataHelper:
     def run(self, start_index, end_index):
         checkpoint = start_index
         progess = 0
-
         print('* Start Checkpoint: %d' % checkpoint)
         
         for xml in self.xmls:
@@ -44,16 +43,12 @@ class DataHelper:
             except Exception as error:
                 fail_sql = self.db.sql_insert_into_fail(str(xml), str(error).replace("'", ""))
                 self.db.commit(fail_sql.encode())
-                
-                checkpoint += 1
-                progess += 1
                 print(str(xml) + " -> " + str(error) + " [" + str(checkpoint) + "/" + str(end_index) + "]")
-                continue
 
             checkpoint += 1
             progess += 1
 
         # Finish work at this process
-        print('The process finished at [{}/{}]'.format(checkpoint - 1, end_index))
+        print('A subprocess finished at {}'.format(end_index))
         self.queue.put((checkpoint - 1, end_index, progess))
         self.terminate()

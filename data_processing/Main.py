@@ -5,7 +5,7 @@ import DataHelper
 from multiprocessing import Process, Queue
 
 file_name_list = './data/articles.A-Z.xml.txt'
-core_number = 4
+core_number = 8
 
 class Main:
     def __init__(self, checkpoint=None):
@@ -41,7 +41,7 @@ class Main:
     def parallelize(self):
         try:
             for index, pair in enumerate(self.index_pairs):
-                proc = Process(target=DataHelper.DataHelper(self.queue, self.xmls[pair[0]:pair[1]+1]).run, args=(pair[0], pair[1]))
+                proc = Process(target=DataHelper.DataHelper(self.queue, self.xmls[pair[0] : pair[1] + 1]).run, args=(pair[0], pair[1]))
                 self.procs.append(proc)
                 proc.start()
 
@@ -69,10 +69,14 @@ class Main:
                 check_message += str(pair[0]) + ' / ' + str(pair[1]) + ' , '
                 self.progress += int(pair[2])
             check_message += str(self.progress) + ' / ' + str(self.total_number) + '\n'
-            print('{}/{} : {:.2f} % complete..\n'.format(self.progress, self.total_number, self.progress / self.total_number * 100))
+            print('{}/{} : {:.2f}% Complete..\n'.format(self.progress, self.total_number, self.progress / self.total_number * 100))
 
             self.file_checkpoint.write(check_message)
             self.file_checkpoint.close()
+            return
+
+        print('Processing of {} xml data processing was completed and stored in the database !!'.format(self.total_number))
+        self.file_checkpoint.close()
 
 if __name__ == '__main__':
     startTime = datetime.datetime.now()
