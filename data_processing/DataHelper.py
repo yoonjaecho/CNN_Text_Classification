@@ -5,23 +5,22 @@ import sys
 import os
 
 class DataHelper:
-    def __init__(self, queue, file_name_list):
+    def __init__(self, queue, xmls):
         self.parser = Parser.Parser()
         self.db = DBManager.DBManager()
         self.queue = queue
-        self.file_name_list = file_name_list
+        self.xmls = xmls
 
     def terminate(self):
         self.db.finish()
 
     def run(self, start_index, end_index):
-        xmls = list(map(lambda s : s.strip(), open(self.file_name_list, 'r').readlines()))
         checkpoint = start_index
         progess = 0
 
         print('* Start Checkpoint: %d' % checkpoint)
         
-        for xml in xmls[start_index:end_index+1]:
+        for xml in self.xmls:
             try:
                 self.parser.set_article(xml)
                 sql = self.db.sql_insert_into_pmid(self.parser.get_pmid(),
