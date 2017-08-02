@@ -1,1 +1,2 @@
-index | date_time
+# start_index / end_index , progess / total_number
+1 / 10 , 11 / 20 , 21 / 30 , 31 / 40 , 0 / 100
