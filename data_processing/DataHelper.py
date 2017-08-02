@@ -16,7 +16,6 @@ class DataHelper:
 
     def run(self, start_index, end_index):
         xmls = list(map(lambda s : s.strip(), open(self.file_name_list, 'r').readlines()))
-        total_number = len(xmls)
         checkpoint = start_index
         progess = 0
 
