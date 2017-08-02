@@ -40,7 +40,8 @@ class DataHelper:
             except KeyboardInterrupt:
                 print('* Save Checkpoint: %d' % checkpoint)
                 self.queue.put((checkpoint, end_index, progess))
-                break
+                self.terminate()
+                return
                 
             except Exception as error:
                 fail_sql = self.db.sql_insert_into_fail(str(xml), str(error))
@@ -54,4 +55,7 @@ class DataHelper:
             checkpoint += 1
             progess += 1
 
+        # Finish work at this process
+        print('The process finished at [{}/{}]'.format(checkpoint - 1, end_index))
+        self.queue.put((checkpoint - 1, end_index, progess))
         self.terminate()
