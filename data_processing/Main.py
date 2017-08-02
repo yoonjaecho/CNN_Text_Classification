@@ -13,10 +13,11 @@ class Main:
         self.index_pairs = []
         self.procs = []
         self.progress = 0
-
+        self.xmls = list(map(lambda s : s.strip(), open(file_name_list, 'r').readlines()))
+        
         if checkpoint is None:
             self.file_checkpoint = open('./checkpoint/checkpoint_' + datetime.datetime.now().strftime('%Y%m%d_%H:%M:%S'), 'w+')
-            self.total_number = sum(1 for line in open(file_name_list))
+            self.total_number = len(self.xmls)
             q = int(self.total_number / core_number)
             
             for i in range(core_number):
@@ -40,7 +41,7 @@ class Main:
     def parallelize(self):
         try:
             for index, pair in enumerate(self.index_pairs):
-                proc = Process(target=DataHelper.DataHelper(self.queue, file_name_list).run, args=(pair[0], pair[1]))
+                proc = Process(target=DataHelper.DataHelper(self.queue, self.xmls[pair[0]:pair[1]+1]).run, args=(pair[0], pair[1]))
                 self.procs.append(proc)
                 proc.start()
 
