@@ -44,7 +44,7 @@ class DataHelper:
                 return
                 
             except Exception as error:
-                fail_sql = self.db.sql_insert_into_fail(str(xml), str(error))
+                fail_sql = self.db.sql_insert_into_fail(str(xml), str(error).replace("'", ""))
                 self.db.commit(fail_sql.encode())
                 
                 checkpoint += 1
