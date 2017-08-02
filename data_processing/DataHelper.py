@@ -34,6 +34,7 @@ class DataHelper:
                                                             self.parser.get_map_label(),
                                                             self.parser.get_origin_label(),
                                                             self.parser.get_sentence())
+                
                 self.db.commit(sql.encode())
 
             except KeyboardInterrupt:
@@ -42,11 +43,12 @@ class DataHelper:
                 break
                 
             except Exception as error:
-                sql = self.db.sql_insert_into_fail(str(xml), str(error))
-                self.db.commit(sql.encode())
-                print(str(xml) + " -> " + str(error) + " [" + str(checkpoint) + "/" + str(end_index) + "]")
+                fail_sql = self.db.sql_insert_into_fail(str(xml), str(error))
+                self.db.commit(fail_sql.encode())
+                
                 checkpoint += 1
                 progess += 1
+                print(str(xml) + " -> " + str(error) + " [" + str(checkpoint) + "/" + str(end_index) + "]")
                 continue
 
             checkpoint += 1

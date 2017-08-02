@@ -26,15 +26,14 @@ class Parser:
                 return node.text
             
     def get_ppub(self):
-        
         for node in self.article.select('pub-date'):
             if node['pub-type'] == 'ppub':
                 p_date = ''
                 if node.year != None:
-                    p_date += '%s' %(node.year.text)
+                    p_date += '%s' % (node.year.text)
                     
                 if node.month != None:
-                    p_date += '%02d' %(int(node.month.text))
+                    p_date += '%02d' % (int(node.month.text))
                 else:
                     p_date += '00'
                 return p_date
@@ -43,10 +42,10 @@ class Parser:
             if node['pub-type'] == 'epub':
                 e_date = ''
                 if node.year != None:
-                    e_date += '%s' %(node.year.text)
+                    e_date += '%s' % (node.year.text)
                     
                 if node.month != None:
-                    e_date += '%02d' %(int(node.month.text))
+                    e_date += '%02d' % (int(node.month.text))
                 else:
                     e_date += '00'
                 return e_date
