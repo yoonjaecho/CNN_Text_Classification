@@ -40,7 +40,7 @@ class DBManager:
         return "select sentence from sentence where `section` = '" + section + "' order by rand() limit " + str(count) + ";"
     
     def sql_select_not_section_sentence(self, section, count):
-        return "select section, sentence from sentence where `section` != '" + section + "' AND `section` != '-' order by rand() limit " + str(count) + ";"
+        return "select section, sentence from sentence where `section` = '-' order by rand() limit " + str(count) + ";"
     
     def fetch(self, sql):
         self.cursor.execute(sql)
