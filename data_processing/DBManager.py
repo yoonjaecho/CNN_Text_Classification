@@ -9,7 +9,7 @@ class DBManager:
                                           user=config.get('DB', 'user'),
                                           password=config.get('DB', 'password'),
                                           db=config.get('DB', 'db'))
-        self.cursor = self.connection.cursor()
+        self.cursor = self.connection.cursor(pymysql.cursors.DictCursor)
 
     def sql_insert_into_pmid(self, pmid, abstract):
         return "insert into pmid (`pmid`, `abstract`) values('" + pmid + "', '" + abstract + "');"
@@ -35,6 +35,16 @@ class DBManager:
     
     def sql_insert_into_fail(self, file_name, error):
         return "insert into fail (`file_name`, `error`) values('" + file_name + "', '" + error + "');"
+    
+    def sql_select_section_sentence(self, section, count):
+        return "select sentence from sentence where `section` = '" + section + "' order by rand() limit " + count + ";"
+    
+    def sql_select_not_section_sentence(self, section, count):
+        return "select section, sentence from sentence where `section` != '" + section + "' AND `section` != '-' order by rand() limit " + count + ";"
+    
+    def fetch(self, sql):
+        self.cursor.execute(sql)
+        return self.cursor.fetchall()
     
     def commit(self, sql):
         self.cursor.execute(sql)
