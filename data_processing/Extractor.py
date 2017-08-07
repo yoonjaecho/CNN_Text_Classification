@@ -2,7 +2,7 @@ import sys
 import json
 import DBManager
 
-class Extraction:
+class Extractor:
     def __init__(self):
         self.data_count = 0
         self.db = DBManager.DBManager()
@@ -23,6 +23,9 @@ class Extraction:
         sql_no_target = self.db.sql_select_not_section_sentence(section, count)
         result_target = self.db.fetch(sql_target.encode())
         result_no_target = self.db.fetch(sql_no_target.encode())
+
+        # TODO : Check does exist directory
+        # TODO : Change file name to number of test set 'section_10000.csv' 
         
         file_training = open('data/training_data/' + section.lower() + str(self.data_count) + '.csv', 'w')
         file_eval = open('data/eval_data/' + section.lower() + str(self.data_count) + '.csv', 'w')
@@ -38,6 +41,10 @@ class Extraction:
         file_test.close()
         
     def run(self):
+
+        # TODO : Print manual(command, section list)
+        # { 'BACKGROUND': 0, 'OBJECTIVE': 1, 'METHODS': 2, 'RESULTS': 3, 'CONCLUSIONS': 4 }
+
         while True:
             command = input('\n> ').upper().split(' ')
             
@@ -53,4 +60,4 @@ class Extraction:
         self.db.finish()
         
 if __name__ == '__main__':
-    Extraction().run()
+    Extractor().run()
