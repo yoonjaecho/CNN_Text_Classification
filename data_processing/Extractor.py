@@ -9,7 +9,6 @@ path_test = 'data/test_data/'
 
 class Extractor:
     def __init__(self):
-        self.data_count = 0
         self.db = DBManager.DBManager()
         self.sections = { 'BACKGROUND': 0, 'OBJECTIVE': 1, 'METHODS': 2, 'RESULTS': 3, 'CONCLUSIONS': 4 }
         
@@ -38,17 +37,15 @@ class Extractor:
         result_no_target = self.db.fetch(sql_no_target.encode())
 
         self.existDir() # Check does exist directory
-        # TODO : Change file name to number of test set 'section_10000.csv' 
         
-        file_training = open('data/training_data/' + section.lower() + str(self.data_count) + '.csv', 'w')
-        file_eval = open('data/eval_data/' + section.lower() + str(self.data_count) + '.csv', 'w')
-        file_test = open('data/test_data/not_' + section.lower() + str(self.data_count) + '.csv', 'w')
+        file_training = open(path_training + section.lower() + '_' + str(count) + '.csv', 'w')
+        file_eval = open(path_eval + section.lower() + '_' + str(count) + '.csv', 'w')
+        file_test = open(path_test + 'not_' + section.lower() + '_' + str(count) + '.csv', 'w')
         for i in range(int(count)):
             file_training.write('%d:::%s\n' % (self.sections[section], result_target[i]['sentence']))
             file_eval.write('%d:::%s\n' % (self.sections[section], result_target[i + count]['sentence']))
             file_test.write('%s\n' % (result_no_target[i]['sentence']))
         
-        self.data_count += 1
         file_training.close()
         file_eval.close()
         file_test.close()
