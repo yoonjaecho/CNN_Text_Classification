@@ -1,12 +1,25 @@
 import sys
+import os
 import json
 import DBManager
+
+path_training = 'data/training_data/'
+path_eval = 'data/eval_data/'
+path_test = 'data/test_data/'
 
 class Extractor:
     def __init__(self):
         self.data_count = 0
         self.db = DBManager.DBManager()
         self.sections = { 'BACKGROUND': 0, 'OBJECTIVE': 1, 'METHODS': 2, 'RESULTS': 3, 'CONCLUSIONS': 4 }
+        
+    def existDir(self):
+        if not os.path.isdir(path_training):
+            os.mkdir(path_training)
+        if not os.path.isdir(path_eval):
+            os.mkdir(path_eval)
+        if not os.path.isdir(path_test):
+            os.mkdir(path_test)
 
     def print_data(self, argv):
         section = argv[1]
@@ -24,7 +37,7 @@ class Extractor:
         result_target = self.db.fetch(sql_target.encode())
         result_no_target = self.db.fetch(sql_no_target.encode())
 
-        # TODO : Check does exist directory
+        self.existDir() # Check does exist directory
         # TODO : Change file name to number of test set 'section_10000.csv' 
         
         file_training = open('data/training_data/' + section.lower() + str(self.data_count) + '.csv', 'w')
