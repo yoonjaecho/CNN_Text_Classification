@@ -12,7 +12,7 @@ class Extractor:
         self.db = DBManager.DBManager()
         self.sections = { 'BACKGROUND': 0, 'OBJECTIVE': 1, 'METHODS': 2, 'RESULTS': 3, 'CONCLUSIONS': 4 }
         
-    def existDir(self):
+    def exist_dir(self):
         if not os.path.isdir(path_training):
             os.mkdir(path_training)
         if not os.path.isdir(path_eval):
@@ -36,7 +36,7 @@ class Extractor:
         result_target = self.db.fetch(sql_target.encode())
         result_no_target = self.db.fetch(sql_no_target.encode())
 
-        self.existDir() # Check does exist directory
+        self.exist_dir() # Check does exist directory
         
         file_training = open(path_training + section.lower() + '_' + str(count) + '.csv', 'w')
         file_eval = open(path_eval + section.lower() + '_' + str(count) + '.csv', 'w')
