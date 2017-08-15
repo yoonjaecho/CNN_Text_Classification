@@ -66,11 +66,12 @@ class Extractor:
         print('... OK')
         
     def print_manual(self):
-        print('\n* [command] [section name] [count]\n')
+        print('\n* [command] [section name]+ [count]+\n')
         
         print('* Command:')
-        print(' > PRINT: It is used to check the result value.')
-        print(' > SAVE: The result values are stored in 3 types. (train, eval, test)')
+        print(' > PRINT: Used to check the result value.')
+        print(' > SAVE: The result values are stored in 2 types. (train, eval)')
+        print(' > TEST: Store the test data.')
         print(' > HELP: Print the manual.')
         print(' > EXIT: Exit the program.\n')
         
@@ -79,7 +80,8 @@ class Extractor:
         print('  { BACKGROUND, OBJECTIVE, METHODS, RESULTS, CONCLUSIONS }\n')
         
         print('* Count:')
-        print(' > The number of sentences.\n')
+        print(' > The number of sentences.')
+        print(' > In the SAVE command, must input the each data count. (train, eval)\n')
         
     def run(self):
         self.print_manual()
