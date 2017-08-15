@@ -47,12 +47,52 @@ class Extractor:
         return list_section
 
     def print_data(self, argv):
-        section = argv[1]
-        count = argv[2]
+        if len(argv) < 2:
+            print('... PRINT SAVE [section name]+ [train count] [eval count]')
+            print('... PRINT TEST [count]')
+            return
+        if (not argv[1] == 'SAVE') and (not argv[1] == 'TEST'):
+            print('... PRINT SAVE [section name]+ [train count] [eval count]')
+            print('... PRINT TEST [count]')
+            return
         
-        sql_target = self.db.sql_select_section_sentence(section, count)
-        print(json.dumps(self.db.fetch(sql_target.encode()), indent = 4))
-                         
+        if argv[1] == 'SAVE':
+            if len(argv) < 5:
+                print('... PRINT SAVE [section name]+ [train count] [eval count]')
+                return
+            if not self.exist_section(argv[2:-2]): # Check if a section does not exist
+                return
+            if not self.check_pos_int(argv[-2]) or not self.check_pos_int(argv[-1]):
+                return
+            
+            count_train = int(argv[-2])
+            count_eval = int(argv[-1])
+            count_total = count_train + count_eval
+            list_section = self.replace_section(argv[2:-2])
+            
+            for section in list_section:
+                sql = self.db.sql_select_section_sentence(section, count_total)
+                result = self.db.fetch(sql.encode())
+                
+                print(json.dumps(result[:count_train], indent=4))
+                print('------------------------------------------------------------------------------------------ End of train data.')
+                print(json.dumps(result[count_train : count_total], indent=4))
+                print('------------------------------------------------------------------------------------------ End of eval data.')
+                
+        if argv[1] == 'TEST':
+            if len(argv) < 3:
+                print('... PRINT TEST [count]')
+                return
+            if not self.check_pos_int(argv[2]):
+                return
+            
+            count_total = int(argv[2])
+            sql = self.db.sql_select_not_section_sentence(count_total)
+            result = self.db.fetch(sql.encode())
+            
+            print(json.dumps(result, indent=4))
+            print('------------------------------------------------------------------------------------------ End of test data.')
+            
     def save_data(self, argv):
         if len(argv) < 4:
             print('... SAVE [section name]+ [train count] [eval count]')
