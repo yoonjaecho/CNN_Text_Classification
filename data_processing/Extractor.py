@@ -11,6 +11,7 @@ class Extractor:
     def __init__(self):
         self.db = DBManager.DBManager()
         self.sections = { 'BACKGROUND': 0, 'OBJECTIVE': 1, 'METHODS': 2, 'RESULTS': 3, 'CONCLUSIONS': 4 }
+        self.sections_num = { '0': 'BACKGROUND', '1': 'OBJECTIVE', '2': 'METHODS', '3': 'RESULTS', '4': 'CONCLUSIONS' }
         
     def exist_dir(self):
         if not os.path.isdir(path_train):
@@ -19,6 +20,31 @@ class Extractor:
             os.mkdir(path_eval)
         if not os.path.isdir(path_test):
             os.mkdir(path_test)
+            
+    def exist_section(self, list_section):
+        for section in list_section:
+            if (not section in self.sections) and (not section in self.sections_num):
+                print("... The '%s' section does not exist." % (section))
+                return False
+        return True
+    
+    def check_pos_int(self, value):
+        try:
+            if int(value) < 0:
+                print('... Input must be a positive integer.')
+                return False
+        except ValueError:
+            print("... '%s' is not an integer." % (value))
+            return False
+        
+        return True
+    
+    def replace_section(self, list_section):
+        for index, number in enumerate(list_section):
+            if number in self.sections_num:
+                list_section[index] = self.sections_num[number]
+                
+        return list_section
 
     def print_data(self, argv):
         section = argv[1]
@@ -28,12 +54,20 @@ class Extractor:
         print(json.dumps(self.db.fetch(sql_target.encode()), indent = 4))
                          
     def save_data(self, argv):
-        list_section = argv[1:-2]
+        if len(argv) < 4:
+            print('... SAVE [section name]+ [train count] [eval count]')
+            return
+        if not self.exist_section(argv[1:-2]): # Check if a section does not exist
+            return
+        if not self.check_pos_int(argv[-2]) or not self.check_pos_int(argv[-1]):
+            return
+        
+        list_section = self.replace_section(argv[1:-2])
         count_train = int(argv[-2])
         count_eval = int(argv[-1])
         count_total = count_train + count_eval
         
-        self.exist_dir() # Check does exist directory
+        self.exist_dir() # Check if a directory does not exist
         file_train = open(path_train + '_'.join(list(map(lambda s : s.lower(), list_section))) + '_' + str(count_train) + '.csv', 'w')
         file_eval = open(path_eval + '_'.join(list(map(lambda s : s.lower(), list_section))) + '_' + str(count_eval) + '.csv', 'w')
         
@@ -51,6 +85,12 @@ class Extractor:
         print('... OK')
    
     def test_data(self, argv):
+        if len(argv) < 2:
+            print('... TEST [count]')
+            return
+        if not self.check_pos_int(argv[1]):
+            return
+        
         count_total = int(argv[1])
         
         self.exist_dir() # Check does exist directory
@@ -77,7 +117,7 @@ class Extractor:
         
         print('* Section name:')
         print(' > Available section names are:')
-        print('  { BACKGROUND, OBJECTIVE, METHODS, RESULTS, CONCLUSIONS }\n')
+        print('  { BACKGROUND: 0, OBJECTIVE: 1, METHODS: 2, RESULTS: 3, CONCLUSIONS: 4 }\n')
         
         print('* Count:')
         print(' > The number of sentences.')
