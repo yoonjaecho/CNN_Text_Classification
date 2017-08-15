@@ -43,8 +43,8 @@ class Extractor:
         for index, number in enumerate(list_section):
             if number in self.sections_num:
                 list_section[index] = self.sections_num[number]
-                
-        return list_section
+        
+        return set(list_section)
 
     def print_data(self, argv):
         if len(argv) < 2:
