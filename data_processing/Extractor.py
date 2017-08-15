@@ -49,6 +49,21 @@ class Extractor:
         file_train.close()
         file_eval.close()
         print('... OK')
+   
+    def test_data(self, argv):
+        count_total = int(argv[1])
+        
+        self.exist_dir() # Check does exist directory
+        file_test = open(path_test +  'test_' + str(count_total) + '.csv', 'w')
+        
+        sql = self.db.sql_select_not_section_sentence(count_total)
+        result = self.db.fetch(sql.encode())
+        
+        for target in result:
+            file_test.write('%s\n' % (target['sentence']))
+        
+        file_test.close()
+        print('... OK')
         
     def print_manual(self):
         print('\n* [command] [section name] [count]\n')
@@ -79,6 +94,8 @@ class Extractor:
                 self.print_data(command)
             elif (command[0] == 'SAVE'):
                 self.save_data(command)
+            elif (command[0] == 'TEST'):
+                self.test_data(command)
             elif (command[0] == 'HELP'):
                 self.print_manual()
             else:
