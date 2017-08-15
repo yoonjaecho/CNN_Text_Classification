@@ -37,7 +37,7 @@ class DBManager:
         return "insert into fail (`file_name`, `error`) values('" + file_name + "', '" + error + "');"
     
     def sql_select_section_sentence(self, section, count):
-        return "select sentence from sentence where `section` = '" + section + "' order by rand() limit " + str(count) + ";"
+        return "select section, sentence from sentence where `section` = '" + section + "' order by rand() limit " + str(count) + ";"
     
     def sql_select_not_section_sentence(self, section, count):
         return "select section, sentence from sentence where `section` = '-' order by rand() limit " + str(count) + ";"
