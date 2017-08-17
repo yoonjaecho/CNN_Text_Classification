@@ -12,6 +12,12 @@ class Extractor:
         self.db = DBManager.DBManager()
         self.sections = { 'BACKGROUND': 0, 'OBJECTIVE': 1, 'METHODS': 2, 'RESULTS': 3, 'CONCLUSIONS': 4 }
         self.sections_num = { '0': 'BACKGROUND', '1': 'OBJECTIVE', '2': 'METHODS', '3': 'RESULTS', '4': 'CONCLUSIONS' }
+
+        self.sentences_count = { 'BACKGROUND': 0, 'OBJECTIVE': 0, 'METHODS': 0, 'RESULTS': 0, 'CONCLUSIONS': 0, '-': 0}
+        for key in self.sentences_count:
+            sql = self.db.sql_select_section_count(key)
+            result = self.db.fetch(sql)
+            self.sentences_count[key] = int(result[0]['count'])
         
     def exist_dir(self):
         if not os.path.isdir(path_train):
@@ -37,6 +43,14 @@ class Extractor:
             print("... '%s' is not an integer." % (value))
             return False
         
+        return True
+
+    def check_sentence_count(self, list_section, count):
+        for section in self.replace_section(list_section):
+            sentences = self.sentences_count[section]
+            if count > sentences:
+                print('... The number of sentences exceeds the range. (%d / %d)' % (count, sentences))
+                return False
         return True
     
     def replace_section(self, list_section):
@@ -64,7 +78,9 @@ class Extractor:
                 return
             if not self.check_pos_int(argv[-2]) or not self.check_pos_int(argv[-1]):
                 return
-            
+            if not self.check_sentence_count(argv[2:-2], int(argv[-1]) + int(argv[-2])):
+                return
+
             count_train = int(argv[-2])
             count_eval = int(argv[-1])
             count_total = count_train + count_eval
@@ -85,7 +101,9 @@ class Extractor:
                 return
             if not self.check_pos_int(argv[2]):
                 return
-            
+            if not self.check_sentence_count(['-'], int(argv[2])):
+                return
+
             count_total = int(argv[2])
             sql = self.db.sql_select_not_section_sentence(count_total)
             result = self.db.fetch(sql.encode())
@@ -100,6 +118,8 @@ class Extractor:
         if not self.exist_section(argv[1:-2]): # Check if a section does not exist
             return
         if not self.check_pos_int(argv[-2]) or not self.check_pos_int(argv[-1]):
+            return
+        if not self.check_sentence_count(argv[1:-2], int(argv[-1]) + int(argv[-2])):
             return
         
         list_section = self.replace_section(argv[1:-2])
@@ -130,7 +150,9 @@ class Extractor:
             return
         if not self.check_pos_int(argv[1]):
             return
-        
+        if not self.check_sentence_count(['-'], int(argv[1])):
+            return
+
         count_total = int(argv[1])
         
         self.exist_dir() # Check does exist directory
