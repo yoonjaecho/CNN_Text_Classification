@@ -41,6 +41,9 @@ class DBManager:
     
     def sql_select_not_section_sentence(self, count):
         return "select sentence from sentence where `section` = '-' order by rand() limit " + str(count) + ";"
+
+    def sql_select_section_count(self, section):
+        return "select count(*) as count from sentence where `section` = '" + section + "';"
     
     def fetch(self, sql):
         self.cursor.execute(sql)
