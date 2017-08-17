@@ -12,6 +12,12 @@ class Extractor:
         self.db = DBManager.DBManager()
         self.sections = { 'BACKGROUND': 0, 'OBJECTIVE': 1, 'METHODS': 2, 'RESULTS': 3, 'CONCLUSIONS': 4 }
         self.sections_num = { '0': 'BACKGROUND', '1': 'OBJECTIVE', '2': 'METHODS', '3': 'RESULTS', '4': 'CONCLUSIONS' }
+
+        self.sentences_count = { 'BACKGROUND': 0, 'OBJECTIVE': 0, 'METHODS': 0, 'RESULTS': 0, 'CONCLUSIONS': 0, '-': 0}
+        for key in self.sentences_count:
+            sql = self.db.sql_select_section_count(key)
+            result = self.db.fetch(sql)
+            self.sentences_count[key] = result[0]['count']
         
     def exist_dir(self):
         if not os.path.isdir(path_train):
