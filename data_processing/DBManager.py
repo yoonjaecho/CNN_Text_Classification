@@ -2,7 +2,11 @@ import pymysql
 import configparser
 
 class DBManager:
-    def __init__(self):
+    def check_connection(self):
+        if self.connection.open == 0:
+            self.get_connection()
+
+    def get_connection(self):
         config = configparser.RawConfigParser()
         config.read('config.ini')
         self.connection = pymysql.connect(host=config.get('DB', 'host'),
@@ -10,6 +14,9 @@ class DBManager:
                                           password=config.get('DB', 'password'),
                                           db=config.get('DB', 'db'))
         self.cursor = self.connection.cursor(pymysql.cursors.DictCursor)
+
+    def __init__(self):
+        self.get_connection()
 
     def sql_insert_into_pmid(self, pmid, abstract):
         return "insert into pmid (`pmid`, `abstract`) values('" + pmid + "', '" + abstract + "');"
@@ -22,7 +29,7 @@ class DBManager:
 
     def sql_get_all_sentence(self, pmid, sections, original_sections, sentences):
         sql = ''
-        
+        # print 'get_all sentnece'
         if sections == '-':
             for sentence in sentences[0]:
                 sql += self.sql_insert_into_sentence(pmid, '-', '-', sentence)

@@ -5,7 +5,7 @@ import DataHelper
 from multiprocessing import Process, Queue
 
 file_name_list = './data/articles.A-Z.xml.txt'
-core_number = 8
+core_number = 12
 
 class Main:
     def __init__(self, checkpoint=None):
