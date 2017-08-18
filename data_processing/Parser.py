@@ -1,4 +1,3 @@
-# import subprocess
 import nltk
 from bs4 import BeautifulSoup
 
@@ -104,22 +103,8 @@ class Parser:
     
     def classify_sentence(self, content):
         sentences = nltk.sent_tokenize(self.utf8_to_ascii(content.strip()))
-        # print sentences
         return sentences
-        # result = []
-        # process_nlp = subprocess.Popen([path_opennlp, 'SentenceDetector', file_opennlp_sent],
-        #                                stdin = subprocess.PIPE,
-        #                                stdout = subprocess.PIPE,
-        #                                stderr = subprocess.PIPE)
-        # # stdout, stderr = process_nlp.communicate(content.encode('punycode'))
-        # stdout, stderr = process_nlp.communicate(self.utf8_to_ascii(content))
-        #
-        # # return stdout.decode().split('\n')[:-3]
-        # for new_sentence in stdout.decode().split('\n')[:-3] :
-        #     result.append(self.utf8_to_ascii(new_sentence))
-
-        # return result
-
+    
     def utf8_to_ascii(self, text):
         return text.encode('ascii', 'ignore')
 

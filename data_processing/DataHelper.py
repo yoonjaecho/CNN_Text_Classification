@@ -21,26 +21,22 @@ class DataHelper:
         
         for xml in self.xmls:
             try:
+                print('%s [%d/%d]' % (xml, checkpoint, end_index))
+                
                 self.parser.set_article(xml)
-                print 'processing file : ', xml
-                # print 'insert pmid'
+                
                 sql = self.db.sql_insert_into_pmid(self.parser.get_pmid(),
                                                    self.parser.get_abstract())
-                # print 'insert abstract'
                 sql += self.db.sql_insert_into_abstract(self.parser.get_pmid(),
                                                         self.parser.get_su(),
                                                         self.parser.get_ppub())
-                # print 'insert sentence'
                 sql += self.db.sql_get_all_sentence(self.parser.get_pmid(),
                                                     self.parser.get_map_label(),
                                                     self.parser.get_origin_label(),
                                                     self.parser.get_sentence())
-
-                # print 'insert sql commit'
-                # print sql.encode()
+                
                 self.db.commit(sql.encode())
-                # print 'end'
-
+                
             except KeyboardInterrupt:
                 print('* Save Checkpoint: %d' % checkpoint)
                 self.queue.put((checkpoint, end_index, progess))
@@ -48,15 +44,15 @@ class DataHelper:
                 return
             
             except Exception as error:
+                print('> %s -> %s [%d/%d]' % (xml, error, checkpoint, end_index))
                 self.db.check_connection()
-                print(str(xml) + " -> " + str(error) + " [" + str(checkpoint) + "/" + str(end_index) + "]")
-                fail_sql = self.db.sql_insert_into_fail(str(xml), str(error).replace("'", ""))
+                fail_sql = self.db.sql_insert_into_fail(xml, str(error).replace("'", ""))
                 self.db.commit(fail_sql.encode())
 
             checkpoint += 1
             progess += 1
 
         # Finish work at this process
-        print('A subprocess finished at {}'.format(end_index))
+        print('*** Subprocess finished at %d' % end_index)
         self.queue.put((checkpoint, end_index, progess))
         self.terminate()
