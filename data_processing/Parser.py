@@ -1,4 +1,4 @@
-import subprocess
+import nltk
 from bs4 import BeautifulSoup
 
 path_opennlp = "apache-opennlp-1.8.1/bin/opennlp"
@@ -64,7 +64,7 @@ class Parser:
         if self.su == 'u':
             abstract = self.article.select('abstract')[0].p.text 
             
-        return abstract.replace("'", "")
+        return self.utf8_to_ascii(abstract.replace("'", ""))
     
     def get_origin_label(self):
         if self.su == 'u':
@@ -73,7 +73,7 @@ class Parser:
         origin_label = []
         for node in self.article.select('abstract sec'):
             if node.p != None:
-                origin_label.append(node.title.text.upper().replace(":", ""))
+                origin_label.append(node.title.text.upper().strip().replace(":", "")).replace("'", ""))
         return origin_label
             
     def get_map_label(self):
@@ -90,7 +90,7 @@ class Parser:
     
     def get_sentence(self):
         sentences = []
-        
+
         if self.su == 's':
             for node in self.article.select('abstract sec'):
                 if node.p != None:
@@ -102,13 +102,12 @@ class Parser:
         return sentences
     
     def classify_sentence(self, content):
-        process_nlp = subprocess.Popen([path_opennlp, 'SentenceDetector', file_opennlp_sent], 
-                                       stdin = subprocess.PIPE, 
-                                       stdout = subprocess.PIPE, 
-                                       stderr = subprocess.PIPE)
-        stdout, stderr = process_nlp.communicate(content.encode())
-        return stdout.decode().split('\n')[:-3]
-        
+        sentences = nltk.sent_tokenize(self.utf8_to_ascii(content.strip()))
+        return sentences
+    
+    def utf8_to_ascii(self, text):
+        return text.encode('ascii', 'ignore')
+
     def print_article(self):
         print(self.file_article)
         print('PMID:  ' + self.get_pmid())

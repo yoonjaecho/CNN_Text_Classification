@@ -3,6 +3,13 @@ import configparser
 
 class DBManager:
     def __init__(self):
+        self.get_connection()
+
+    def check_connection(self):
+        if self.connection.open == 0:
+            self.get_connection()
+
+    def get_connection(self):
         config = configparser.RawConfigParser()
         config.read('config.ini')
         self.connection = pymysql.connect(host=config.get('DB', 'host'),
