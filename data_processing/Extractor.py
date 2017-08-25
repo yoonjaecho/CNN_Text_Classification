@@ -71,7 +71,7 @@ class Extractor:
     
     def check_sentence_count_original(self, list_section, count):
         sentences = 0
-        for section in self.replace_section(list_section):
+        for section in list_section:
             sentences += self.sentences_count_original[section]
             
         if count > sentences:
@@ -160,7 +160,7 @@ class Extractor:
         if not self.check_sentence_count_original(argv[1:-1], int(argv[-1])):
             return
         
-        list_section = self.replace_section(argv[1:-1])
+        list_section = argv[1:-1]
         count_total = int(argv[-1])
         
         if check_print:
@@ -173,13 +173,12 @@ class Extractor:
         else:
             self.exist_dir()
             file_test = open(path_test + '_'.join(list(map(lambda s : s.lower(), list_section))) + '_' + str(count_total) + '.csv', 'w')
-
-            for section in list_section:
-                sql = self.db.sql_select_original_list_section_sentence(list_section, count_total)
-                result = self.db.fetch(sql.encode())
-
-                for target in result:
-                    file_test.write('%s:::%s\n' % (target['original_section'], target['sentence']))
+            
+            sql = self.db.sql_select_original_list_section_sentence(list_section, count_total)
+            result = self.db.fetch(sql.encode())
+            
+            for target in result:
+                file_test.write('%s:::%s\n' % (target['original_section'], target['sentence']))
 
             file_test.close()
             print('... OK')
