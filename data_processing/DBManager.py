@@ -52,6 +52,12 @@ class DBManager:
     def sql_select_section_count(self, section):
         return "select count(*) as count from sentence where `section` = '" + section + "';"
     
+    def sql_select_original_list_section_sentence(self, list_section, count):
+        return "select original_section, sentence from sentence where original_section like '%" + ("%' OR original_section like '%".join(list_section)) + "%' order by rand() limit " + str(count) + ";"
+    
+    def sql_select_original_section_count(self, section):
+        return "select count(*) as count from sentence where original_section like '%" + section + "%';"
+    
     def fetch(self, sql):
         self.cursor.execute(sql)
         return self.cursor.fetchall()
