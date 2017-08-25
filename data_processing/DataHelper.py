@@ -35,6 +35,7 @@ class DataHelper:
                                                     self.parser.get_origin_label(),
                                                     self.parser.get_sentence())
                 
+                self.db.check_connection()
                 self.db.commit(sql.encode())
                 
             except KeyboardInterrupt:
@@ -48,6 +49,9 @@ class DataHelper:
                 self.db.check_connection()
                 fail_sql = self.db.sql_insert_into_fail(xml, str(error).replace("'", ""))
                 self.db.commit(fail_sql.encode())
+
+            finally:
+                self.db.check_connection()
 
             checkpoint += 1
             progess += 1

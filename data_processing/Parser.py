@@ -73,7 +73,7 @@ class Parser:
         origin_label = []
         for node in self.article.select('abstract sec'):
             if node.p != None:
-                origin_label.append(node.title.text.upper().strip().replace(":", ""))
+                origin_label.append(node.title.text.upper().strip().replace(":", "")).replace("'", ""))
         return origin_label
             
     def get_map_label(self):

@@ -75,7 +75,7 @@ class Main:
             self.file_checkpoint.close()
             return
 
-        print('Processing of {} xml data processing was completed and stored in the database !!'.format(self.total_number))
+        print('Processing of {} xml data was completed and stored in the database !!'.format(self.total_number))
         self.file_checkpoint.close()
 
 if __name__ == '__main__':
