@@ -216,12 +216,13 @@ class Extractor:
             print('... OK')
         
     def print_manual(self):
-        print('\n* [command] [section name]+ [count]+\n')
+        print('\n* [command] [original_section | section name]+ [count]+\n')
         
         print('* Command:')
         print(' > PRINT: Used to check the result value.')
         print(' > SAVE: The result values are stored in 2 types. (train, eval)')
-        print(' > TEST: Store the test data.')
+        print(' > SECTION: Store the result values based on the original section. (test)')
+        print(' > TEST: Store the test data. (test)')
         print(' > HELP: Print the manual.')
         print(' > EXIT: Exit the program.\n')
         
