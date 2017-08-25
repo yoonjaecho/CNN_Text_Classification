@@ -71,49 +71,13 @@ class Extractor:
             return
         
         if argv[1] == 'SAVE':
-            if len(argv) < 5:
-                print('... PRINT SAVE [section name]+ [train count] [eval count]')
-                return
-            if not self.exist_section(argv[2:-2]): # Check if a section does not exist
-                return
-            if not self.check_pos_int(argv[-2]) or not self.check_pos_int(argv[-1]):
-                return
-            if not self.check_sentence_count(argv[2:-2], int(argv[-1]) + int(argv[-2])):
-                return
-
-            count_train = int(argv[-2])
-            count_eval = int(argv[-1])
-            count_total = count_train + count_eval
-            list_section = self.replace_section(argv[2:-2])
-            
-            for section in list_section:
-                sql = self.db.sql_select_section_sentence(section, count_total)
-                result = self.db.fetch(sql.encode())
-                
-                print(json.dumps(result[:count_train], indent=4))
-                print('------------------------------------------------------------------------------------------ End of train data.')
-                print(json.dumps(result[count_train : count_total], indent=4))
-                print('------------------------------------------------------------------------------------------ End of eval data.')
-                
+            self.save_data(argv[1:], True)
         if argv[1] == 'TEST':
-            if len(argv) < 3:
-                print('... PRINT TEST [count]')
-                return
-            if not self.check_pos_int(argv[2]):
-                return
-            if not self.check_sentence_count(['-'], int(argv[2])):
-                return
-
-            count_total = int(argv[2])
-            sql = self.db.sql_select_not_section_sentence(count_total)
-            result = self.db.fetch(sql.encode())
+            self.test_data(argv[1:], True)
             
-            print(json.dumps(result, indent=4))
-            print('------------------------------------------------------------------------------------------ End of test data.')
-            
-    def save_data(self, argv):
+    def save_data(self, argv, check_print=False):
         if len(argv) < 4:
-            print('... SAVE [section name]+ [train count] [eval count]')
+            print('...%s SAVE [section name]+ [train count] [eval count]' % (' PRINT' if check_print else ''))
             return
         if not self.exist_section(argv[1:-2]): # Check if a section does not exist
             return
@@ -127,26 +91,37 @@ class Extractor:
         count_eval = int(argv[-1])
         count_total = count_train + count_eval
         
-        self.exist_dir() # Check if a directory does not exist
-        file_train = open(path_train + '_'.join(list(map(lambda s : s.lower(), list_section))) + '_' + str(count_train) + '.csv', 'w')
-        file_eval = open(path_eval + '_'.join(list(map(lambda s : s.lower(), list_section))) + '_' + str(count_eval) + '.csv', 'w')
-        
-        for section in list_section:
-            sql = self.db.sql_select_section_sentence(section, count_total)
-            result = self.db.fetch(sql.encode())
-            
-            for target in result[:count_train]:
-                file_train.write('%d:::%s\n' % (self.sections[target['section']], target['sentence']))
-            for target in result[count_train : count_total]:
-                file_eval.write('%d:::%s\n' % (self.sections[target['section']], target['sentence']))
-        
-        file_train.close()
-        file_eval.close()
-        print('... OK')
+        if check_print:
+            for section in list_section:
+                sql = self.db.sql_select_section_sentence(section, count_total)
+                result = self.db.fetch(sql.encode())
+                
+                print(json.dumps(result[:count_train], indent=4))
+                print('------------------------------------------------------------------------------------------ End of train data.')
+                print(json.dumps(result[count_train : count_total], indent=4))
+                print('------------------------------------------------------------------------------------------ End of eval data.')
+                
+        else:
+            self.exist_dir() # Check if a directory does not exist
+            file_train = open(path_train + '_'.join(list(map(lambda s : s.lower(), list_section))) + '_' + str(count_train) + '.csv', 'w')
+            file_eval = open(path_eval + '_'.join(list(map(lambda s : s.lower(), list_section))) + '_' + str(count_eval) + '.csv', 'w')
+
+            for section in list_section:
+                sql = self.db.sql_select_section_sentence(section, count_total)
+                result = self.db.fetch(sql.encode())
+
+                for target in result[:count_train]:
+                    file_train.write('%d:::%s\n' % (self.sections[target['section']], target['sentence']))
+                for target in result[count_train : count_total]:
+                    file_eval.write('%d:::%s\n' % (self.sections[target['section']], target['sentence']))
+
+            file_train.close()
+            file_eval.close()
+            print('... OK')
    
-    def test_data(self, argv):
+    def test_data(self, argv, check_print=False):
         if len(argv) < 2:
-            print('... TEST [count]')
+            print('...%s TEST [count]' % (' PRINT' if check_print else ''))
             return
         if not self.check_pos_int(argv[1]):
             return
@@ -155,17 +130,25 @@ class Extractor:
 
         count_total = int(argv[1])
         
-        self.exist_dir() # Check does exist directory
-        file_test = open(path_test +  'test_' + str(count_total) + '.csv', 'w')
+        if check_print:
+            sql = self.db.sql_select_not_section_sentence(count_total)
+            result = self.db.fetch(sql.encode())
+            
+            print(json.dumps(result, indent=4))
+            print('------------------------------------------------------------------------------------------ End of test data.')
         
-        sql = self.db.sql_select_not_section_sentence(count_total)
-        result = self.db.fetch(sql.encode())
-        
-        for target in result:
-            file_test.write('%s\n' % (target['sentence']))
-        
-        file_test.close()
-        print('... OK')
+        else:
+            self.exist_dir() # Check does exist directory
+            file_test = open(path_test +  'test_' + str(count_total) + '.csv', 'w')
+            
+            sql = self.db.sql_select_not_section_sentence(count_total)
+            result = self.db.fetch(sql.encode())
+            
+            for target in result:
+                file_test.write('%s\n' % (target['sentence']))
+                
+            file_test.close()
+            print('... OK')
         
     def print_manual(self):
         print('\n* [command] [section name]+ [count]+\n')
