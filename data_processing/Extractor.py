@@ -123,7 +123,7 @@ class Extractor:
         
         if check_print:
             for section in list_section:
-                sql = self.db.sql_select_original_section_sentence(section, count_total)
+                sql = self.db.sql_select_section_sentence(section, count_total)
                 result = self.db.fetch(sql.encode())
                 
                 print(json.dumps(result[:count_train], indent=4))
@@ -137,7 +137,7 @@ class Extractor:
             file_eval = open(path_eval + '_'.join(list(map(lambda s : s.lower(), list_section))) + '_' + str(count_eval) + '.csv', 'w')
 
             for section in list_section:
-                sql = self.db.sql_select_original_section_sentence(section, count_total)
+                sql = self.db.sql_select_section_sentence(section, count_total)
                 result = self.db.fetch(sql.encode())
 
                 for target in result[:count_train]:
