@@ -7,12 +7,23 @@ path_train = 'data/train_data/'
 path_eval = 'data/eval_data/'
 path_test = 'data/test_data/'
 
+command_print = 'PRINT'
+command_save = 'SAVE'
+command_section = 'SECTION'
+command_test = 'TEST'
+command_help = 'HELP'
+command_exit = 'EXIT'
+
+syntax_save = '[section name]+ [train count] [eval count]'
+syntax_section = '[original_section name]+ [count]'
+syntax_test = '[count]'
+
 class Extractor:
     def __init__(self):
         self.db = DBManager.DBManager()
         self.sections = { 'BACKGROUND': 0, 'OBJECTIVE': 1, 'METHODS': 2, 'RESULTS': 3, 'CONCLUSIONS': 4 }
         self.sections_num = { '0': 'BACKGROUND', '1': 'OBJECTIVE', '2': 'METHODS', '3': 'RESULTS', '4': 'CONCLUSIONS' }
-
+        
         self.sentences_count_original = { }
         self.sentences_count = { 'BACKGROUND': 0, 'OBJECTIVE': 0, 'METHODS': 0, 'RESULTS': 0, 'CONCLUSIONS': 0, '-': 0}
         for key in self.sentences_count:
@@ -33,6 +44,7 @@ class Extractor:
             if (not section in self.sections) and (not section in self.sections_num):
                 print("... The '%s' section does not exist." % (section))
                 return False
+            
         return True
     
     def exist_original_section(self, list_section):
@@ -46,8 +58,9 @@ class Extractor:
             count += self.sentences_count_original[section]
             
         if count == 0:
-            print("... The '%s' section does not exist." % (", ".join(list_section)))
+            print("... The '%s' section does not exist." % (', '.join(list_section)))
             return False
+        
         return True
     
     def check_pos_int(self, value):
@@ -67,6 +80,7 @@ class Extractor:
             if count > sentences:
                 print('... The number of sentences exceeds the range. (%d / %d)' % (count, sentences))
                 return False
+            
         return True
     
     def check_sentence_count_original(self, list_section, count):
@@ -77,6 +91,7 @@ class Extractor:
         if count > sentences:
             print('... The number of sentences exceeds the range. (%d / %d)' % (count, sentences))
             return False
+        
         return True
     
     def replace_section(self, list_section):
@@ -88,30 +103,30 @@ class Extractor:
 
     def print_data(self, argv):
         if len(argv) < 2:
-            print('... PRINT SAVE [section name]+ [train count] [eval count]')
-            print('... PRINT SECTION [original_section name]+ [count]')
-            print('... PRINT TEST [count]')
+            print('... %s %s %s' % (command_print, command_save, syntax_save))
+            print('... %s %s %s' % (command_print, command_section, syntax_section))
+            print('... %s %s %s' % (command_print, command_test, syntax_test))
             return
-        if (not argv[1] == 'SAVE') and (not argv[1] == 'TEST') and (not argv[1] == 'SECTION'):
-            print('... PRINT SAVE [section name]+ [train count] [eval count]')
-            print('... PRINT SECTION [original_section name]+ [count]')
-            print('... PRINT TEST [count]')
+        if (not argv[1] == command_save) and (not argv[1] == command_section) and (not argv[1] == command_test):
+            print('... %s %s %s' % (command_print, command_save, syntax_save))
+            print('... %s %s %s' % (command_print, command_section, syntax_section))
+            print('... %s %s %s' % (command_print, command_test, syntax_test))
             return
         
-        if argv[1] == 'SAVE':
+        if argv[1] == command_save:
             self.save_data(argv[1:], True)
-        if argv[1] == 'SECTION':
+        if argv[1] == command_section:
             self.section_data(argv[1:], True)
-        if argv[1] == 'TEST':
+        if argv[1] == command_test:
             self.test_data(argv[1:], True)
             
     def save_data(self, argv, check_print=False):
         if len(argv) < 4:
-            print('...%s SAVE [section name]+ [train count] [eval count]' % (' PRINT' if check_print else ''))
+            print('...%s %s %s' % (' ' + command_print if check_print else '', command_save, syntax_save))
             return
         if not self.exist_section(argv[1:-2]):
             return
-        if not self.check_pos_int(argv[-2]) or not self.check_pos_int(argv[-1]):
+        if (not self.check_pos_int(argv[-2])) or (not self.check_pos_int(argv[-1])):
             return
         if not self.check_sentence_count(argv[1:-2], int(argv[-1]) + int(argv[-2])):
             return
@@ -151,7 +166,7 @@ class Extractor:
             
     def section_data(self, argv, check_print=False):
         if len(argv) < 3:
-            print('...%s SECTION [original_section name]+ [count]' % (' PRINT' if check_print else ''))
+            print('...%s %s %s' % (' ' + command_print if check_print else '', command_section, syntax_section))
             return
         if not self.exist_original_section(argv[1:-1]):
             return
@@ -185,7 +200,7 @@ class Extractor:
    
     def test_data(self, argv, check_print=False):
         if len(argv) < 2:
-            print('...%s TEST [count]' % (' PRINT' if check_print else ''))
+            print('...%s %s %s' % (' ' + command_print if check_print else '', command_test, syntax_test))
             return
         if not self.check_pos_int(argv[1]):
             return
@@ -218,12 +233,12 @@ class Extractor:
         print('\n* [command] [original_section | section name]+ [count]+\n')
         
         print('* Command:')
-        print(' > PRINT: Used to check the result value.')
-        print(' > SAVE: The result values are stored in 2 types. (train, eval)')
-        print(' > SECTION: Store the result values based on the original section. (test)')
-        print(' > TEST: Store the test data. (test)')
-        print(' > HELP: Print the manual.')
-        print(' > EXIT: Exit the program.\n')
+        print(' > %s: Used to check the result value.' % (command_print))
+        print(' > %s: The result values are stored in 2 types. (train, eval)' % (command_save))
+        print(' > %s: Store the result values based on the original section. (test)' % (command_section))
+        print(' > %s: Store the test data. (test)' % (command_test))
+        print(' > %s: Print the manual.' % (command_help))
+        print(' > %s: Exit the program.\n' % (command_exit))
         
         print('* Section name:')
         print(' > Available section names are:')
@@ -231,7 +246,7 @@ class Extractor:
         
         print('* Count:')
         print(' > The number of sentences.')
-        print(' > In the SAVE command, must input the each data count. (train, eval)\n')
+        print(' > In the %s command, must input the each data count. (train, eval)\n' % (command_save))
         
     def run(self):
         self.print_manual()
@@ -239,18 +254,18 @@ class Extractor:
         while True:
             command = input('\n> ').upper().split(' ')
             
-            if (command[0] == 'EXIT'):
+            if (command[0] == command_exit):
                 print('... Bye')
                 break
-            elif (command[0] == 'PRINT'):
+            elif (command[0] == command_print):
                 self.print_data(command)
-            elif (command[0] == 'SAVE'):
+            elif (command[0] == command_save):
                 self.save_data(command)
-            elif (command[0] == 'SECTION'):
+            elif (command[0] == command_section):
                 self.section_data(command)
-            elif (command[0] == 'TEST'):
+            elif (command[0] == command_test):
                 self.test_data(command)
-            elif (command[0] == 'HELP'):
+            elif (command[0] == command_help):
                 self.print_manual()
             else:
                 print('... Unknown Command')
