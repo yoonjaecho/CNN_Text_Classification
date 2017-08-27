@@ -3,6 +3,13 @@ import configparser
 
 class DBManager:
     def __init__(self):
+        self.get_connection()
+
+    def check_connection(self):
+        if self.connection.open == 0:
+            self.get_connection()
+
+    def get_connection(self):
         config = configparser.RawConfigParser()
         config.read('config.ini')
         self.connection = pymysql.connect(host=config.get('DB', 'host'),
@@ -37,10 +44,19 @@ class DBManager:
         return "insert into fail (`file_name`, `error`) values('" + file_name + "', '" + error + "');"
     
     def sql_select_section_sentence(self, section, count):
-        return "select sentence from sentence where `section` = '" + section + "' order by rand() limit " + str(count) + ";"
+        return "select section, sentence from sentence where `section` = '" + section + "' order by rand() limit " + str(count) + ";"
     
-    def sql_select_not_section_sentence(self, section, count):
-        return "select section, sentence from sentence where `section` = '-' order by rand() limit " + str(count) + ";"
+    def sql_select_not_section_sentence(self, count):
+        return "select sentence from sentence where `section` = '-' order by rand() limit " + str(count) + ";"
+
+    def sql_select_section_count(self, section):
+        return "select count(*) as count from sentence where `section` = '" + section + "';"
+    
+    def sql_select_original_list_section_sentence(self, list_section, count):
+        return "select original_section, sentence from sentence where original_section like '%" + ("%' OR original_section like '%".join(list_section)) + "%' order by rand() limit " + str(count) + ";"
+    
+    def sql_select_original_section_count(self, section):
+        return "select count(*) as count from sentence where original_section like '%" + section + "%';"
     
     def fetch(self, sql):
         self.cursor.execute(sql)
