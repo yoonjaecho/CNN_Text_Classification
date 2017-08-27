@@ -156,9 +156,9 @@ class Extractor:
                 result = self.db.fetch(sql.encode())
 
                 for target in result[:count_train]:
-                    file_train.write('%d:::%s\n' % (self.sections[target['section']], target['sentence']))
+                    file_train.write('%d:::%s\n' % (self.sections[target['section']], ' '.join(target['sentence'].split())))
                 for target in result[count_train : count_total]:
-                    file_eval.write('%d:::%s\n' % (self.sections[target['section']], target['sentence']))
+                    file_eval.write('%d:::%s\n' % (self.sections[target['section']], ' '.join(target['sentence'].split())))
 
             file_train.close()
             file_eval.close()
@@ -193,7 +193,7 @@ class Extractor:
             result = self.db.fetch(sql.encode())
             
             for target in result:
-                file_test.write('%s:::%s\n' % (target['original_section'], target['sentence']))
+                file_test.write('%s:::%s\n' % (target['original_section'], ' '.join(target['sentence'].split())))
 
             file_test.close()
             print('... OK')
@@ -224,7 +224,7 @@ class Extractor:
             result = self.db.fetch(sql.encode())
             
             for target in result:
-                file_test.write('%s\n' % (target['sentence']))
+                file_test.write('%s\n' % (' '.join(target['sentence'].split())))
                 
             file_test.close()
             print('... OK')
