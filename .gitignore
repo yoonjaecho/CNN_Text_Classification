@@ -6,3 +6,6 @@ apache-opennlp-1.8.1/
 chromedriver
 *.xml
 fail_list.txt
+*.pyc
+model*
+db_schema.txt
