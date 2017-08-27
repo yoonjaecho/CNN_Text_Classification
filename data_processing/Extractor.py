@@ -8,28 +8,28 @@ path_eval = 'data/eval_data/'
 path_test = 'data/test_data/'
 
 command_print = 'PRINT'
-command_save = 'SAVE'
-command_section = 'SECTION'
+command_map = 'MAP'
+command_origin = 'ORIGIN'
 command_test = 'TEST'
 command_help = 'HELP'
 command_exit = 'EXIT'
 
-syntax_save = '[section name]+ [train count] [eval count]'
-syntax_section = '[original_section name]+ [count]'
+syntax_map = '[mapped_section name]+ [train count] [eval count]'
+syntax_origin = '[original_section name]+ [count]'
 syntax_test = '[count]'
 
 class Extractor:
     def __init__(self):
         self.db = DBManager.DBManager()
-        self.sections = { 'BACKGROUND': 0, 'OBJECTIVE': 1, 'METHODS': 2, 'RESULTS': 3, 'CONCLUSIONS': 4 }
-        self.sections_num = { '0': 'BACKGROUND', '1': 'OBJECTIVE', '2': 'METHODS', '3': 'RESULTS', '4': 'CONCLUSIONS' }
+        self.mapped_sections = { 'BACKGROUND': 0, 'OBJECTIVE': 1, 'METHODS': 2, 'RESULTS': 3, 'CONCLUSIONS': 4 }
+        self.mapped_sections_num = { '0': 'BACKGROUND', '1': 'OBJECTIVE', '2': 'METHODS', '3': 'RESULTS', '4': 'CONCLUSIONS' }
         
         self.sentences_count_original = { }
-        self.sentences_count = { 'BACKGROUND': 0, 'OBJECTIVE': 0, 'METHODS': 0, 'RESULTS': 0, 'CONCLUSIONS': 0, '-': 0}
-        for key in self.sentences_count:
+        self.sentences_count_mapped = { 'BACKGROUND': 0, 'OBJECTIVE': 0, 'METHODS': 0, 'RESULTS': 0, 'CONCLUSIONS': 0, '-': 0}
+        for key in self.sentences_count_mapped:
             sql = self.db.sql_select_section_count(key)
             result = self.db.fetch(sql)
-            self.sentences_count[key] = int(result[0]['count'])
+            self.sentences_count_mapped[key] = int(result[0]['count'])
         
     def exist_dir(self):
         if not os.path.isdir(path_train):
@@ -39,9 +39,9 @@ class Extractor:
         if not os.path.isdir(path_test):
             os.mkdir(path_test)
             
-    def exist_section(self, list_section):
+    def exist_mapped_section(self, list_section):
         for section in list_section:
-            if (not section in self.sections) and (not section in self.sections_num):
+            if (not section in self.mapped_sections) and (not section in self.mapped_sections_num):
                 print("... The '%s' section does not exist." % (section))
                 return False
             
@@ -74,9 +74,9 @@ class Extractor:
         
         return True
 
-    def check_sentence_count(self, list_section, count):
-        for section in self.replace_section(list_section):
-            sentences = self.sentences_count[section]
+    def check_sentence_count_mapped(self, list_section, count):
+        for section in self.replace_mapped_section(list_section):
+            sentences = self.sentences_count_mapped[section]
             if count > sentences:
                 print('... The number of sentences exceeds the range. (%d / %d)' % (count, sentences))
                 return False
@@ -94,44 +94,44 @@ class Extractor:
         
         return True
     
-    def replace_section(self, list_section):
+    def replace_mapped_section(self, list_section):
         for index, number in enumerate(list_section):
-            if number in self.sections_num:
-                list_section[index] = self.sections_num[number]
+            if number in self.mapped_sections_num:
+                list_section[index] = self.mapped_sections_num[number]
         
         return set(list_section)
 
-    def print_data(self, argv):
+    def print_processing(self, argv):
         if len(argv) < 2:
-            print('... %s %s %s' % (command_print, command_save, syntax_save))
-            print('... %s %s %s' % (command_print, command_section, syntax_section))
+            print('... %s %s %s' % (command_print, command_map, syntax_map))
+            print('... %s %s %s' % (command_print, command_origin, syntax_origin))
             print('... %s %s %s' % (command_print, command_test, syntax_test))
             return
-        if (not argv[1] == command_save) and (not argv[1] == command_section) and (not argv[1] == command_test):
-            print('... %s %s %s' % (command_print, command_save, syntax_save))
-            print('... %s %s %s' % (command_print, command_section, syntax_section))
+        if (not argv[1] == command_map) and (not argv[1] == command_origin) and (not argv[1] == command_test):
+            print('... %s %s %s' % (command_print, command_map, syntax_map))
+            print('... %s %s %s' % (command_print, command_origin, syntax_origin))
             print('... %s %s %s' % (command_print, command_test, syntax_test))
             return
         
-        if argv[1] == command_save:
-            self.save_data(argv[1:], True)
-        if argv[1] == command_section:
-            self.section_data(argv[1:], True)
-        if argv[1] == command_test:
-            self.test_data(argv[1:], True)
+        if argv[1] == command_map:
+            self.mapped_section_processing(argv[1:], True)
+        elif argv[1] == command_origin:
+            self.original_section_processing(argv[1:], True)
+        elif argv[1] == command_test:
+            self.test_processing(argv[1:], True)
             
-    def save_data(self, argv, check_print=False):
+    def mapped_section_processing(self, argv, check_print=False):
         if len(argv) < 4:
-            print('...%s %s %s' % (' ' + command_print if check_print else '', command_save, syntax_save))
+            print('...%s %s %s' % (' ' + command_print if check_print else '', command_map, syntax_map))
             return
-        if not self.exist_section(argv[1:-2]):
+        if not self.exist_mapped_section(argv[1:-2]):
             return
         if (not self.check_pos_int(argv[-2])) or (not self.check_pos_int(argv[-1])):
             return
-        if not self.check_sentence_count(argv[1:-2], int(argv[-1]) + int(argv[-2])):
+        if not self.check_sentence_count_mapped(argv[1:-2], int(argv[-1]) + int(argv[-2])):
             return
         
-        list_section = self.replace_section(argv[1:-2])
+        list_section = self.replace_mapped_section(argv[1:-2])
         count_train = int(argv[-2])
         count_eval = int(argv[-1])
         count_total = count_train + count_eval
@@ -156,17 +156,17 @@ class Extractor:
                 result = self.db.fetch(sql.encode())
 
                 for target in result[:count_train]:
-                    file_train.write('%d:::%s\n' % (self.sections[target['section']], ' '.join(target['sentence'].split())))
+                    file_train.write('%d:::%s\n' % (self.mapped_sections[target['section']], ' '.join(target['sentence'].split())))
                 for target in result[count_train : count_total]:
-                    file_eval.write('%d:::%s\n' % (self.sections[target['section']], ' '.join(target['sentence'].split())))
+                    file_eval.write('%d:::%s\n' % (self.mapped_sections[target['section']], ' '.join(target['sentence'].split())))
 
             file_train.close()
             file_eval.close()
             print('... OK')
             
-    def section_data(self, argv, check_print=False):
+    def original_section_processing(self, argv, check_print=False):
         if len(argv) < 3:
-            print('...%s %s %s' % (' ' + command_print if check_print else '', command_section, syntax_section))
+            print('...%s %s %s' % (' ' + command_print if check_print else '', command_origin, syntax_origin))
             return
         if not self.exist_original_section(argv[1:-1]):
             return
@@ -198,13 +198,13 @@ class Extractor:
             file_test.close()
             print('... OK')
    
-    def test_data(self, argv, check_print=False):
+    def test_processing(self, argv, check_print=False):
         if len(argv) < 2:
             print('...%s %s %s' % (' ' + command_print if check_print else '', command_test, syntax_test))
             return
         if not self.check_pos_int(argv[1]):
             return
-        if not self.check_sentence_count(['-'], int(argv[1])):
+        if not self.check_sentence_count_mapped(['-'], int(argv[1])):
             return
 
         count_total = int(argv[1])
@@ -230,23 +230,25 @@ class Extractor:
             print('... OK')
         
     def print_manual(self):
-        print('\n* [command] [original_section | section name]+ [count]+\n')
+        print('\n* [command] [original_section | mapped_section name]+ [count]+\n')
         
         print('* Command:')
         print(' > %s: Used to check the result value.' % (command_print))
-        print(' > %s: The result values are stored in 2 types. (train, eval)' % (command_save))
-        print(' > %s: Store the result values based on the original section. (test)' % (command_section))
-        print(' > %s: Store the test data. (test)' % (command_test))
+        print(' > %s: Stores the result values as two types based on the mapped sections. (train, eval)' % (command_map))
+        print(' > %s: Stores the result values based on the original section. (test)' % (command_origin))
+        print(' > %s: Stores unstructured test sentences. (test)' % (command_test))
         print(' > %s: Print the manual.' % (command_help))
         print(' > %s: Exit the program.\n' % (command_exit))
         
-        print('* Section name:')
+        print('* Original section name:')
+        print(' > Included in the original section name')
+        print('* Mapped section name:')
         print(' > Available section names are:')
         print('  { BACKGROUND: 0, OBJECTIVE: 1, METHODS: 2, RESULTS: 3, CONCLUSIONS: 4 }\n')
         
         print('* Count:')
         print(' > The number of sentences.')
-        print(' > In the %s command, must input the each data count. (train, eval)\n' % (command_save))
+        print(' > In the %s command, must input the each data count. (train, eval)\n' % (command_map))
         
     def run(self):
         self.print_manual()
@@ -258,13 +260,13 @@ class Extractor:
                 print('... Bye')
                 break
             elif (command[0] == command_print):
-                self.print_data(command)
-            elif (command[0] == command_save):
-                self.save_data(command)
-            elif (command[0] == command_section):
-                self.section_data(command)
+                self.print_processing(command)
+            elif (command[0] == command_map):
+                self.mapped_section_processing(command)
+            elif (command[0] == command_origin):
+                self.original_section_processing(command)
             elif (command[0] == command_test):
-                self.test_data(command)
+                self.test_processing(command)
             elif (command[0] == command_help):
                 self.print_manual()
             else:
