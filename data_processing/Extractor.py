@@ -7,16 +7,20 @@ path_train = 'data/train_data/'
 path_eval = 'data/eval_data/'
 path_test = 'data/test_data/'
 
+separator = ':::'
+
 command_print = 'PRINT'
 command_map = 'MAP'
 command_origin = 'ORIGIN'
 command_test = 'TEST'
+command_query = 'QUERY'
 command_help = 'HELP'
 command_exit = 'EXIT'
 
 syntax_map = '[mapped_section name]+ [train count] [eval count]'
 syntax_origin = '[original_section name]+ [count]'
 syntax_test = '[count]'
+syntax_query = '[query]'
 
 class Extractor:
     def __init__(self):
@@ -101,16 +105,18 @@ class Extractor:
         
         return set(list_section)
 
-    def print_processing(self, argv):
+    def print_processing(self, argv, argv_origin):
         if len(argv) < 2:
             print('... %s %s %s' % (command_print, command_map, syntax_map))
             print('... %s %s %s' % (command_print, command_origin, syntax_origin))
             print('... %s %s %s' % (command_print, command_test, syntax_test))
+            print('... %s %s %s' % (command_print, command_query, syntax_query))
             return
-        if (not argv[1] == command_map) and (not argv[1] == command_origin) and (not argv[1] == command_test):
+        if (not argv[1] == command_map) and (not argv[1] == command_origin) and (not argv[1] == command_test) and (not argv[1] == command_query):
             print('... %s %s %s' % (command_print, command_map, syntax_map))
             print('... %s %s %s' % (command_print, command_origin, syntax_origin))
             print('... %s %s %s' % (command_print, command_test, syntax_test))
+            print('... %s %s %s' % (command_print, command_query, syntax_query))
             return
         
         if argv[1] == command_map:
@@ -119,6 +125,8 @@ class Extractor:
             self.original_section_processing(argv[1:], True)
         elif argv[1] == command_test:
             self.test_processing(argv[1:], True)
+        elif argv[1] == command_query:
+            self.query_processing(argv[1:], argv_origin[1:], True)
             
     def mapped_section_processing(self, argv, check_print=False):
         if len(argv) < 4:
@@ -156,9 +164,9 @@ class Extractor:
                 result = self.db.fetch(sql.encode())
 
                 for target in result[:count_train]:
-                    file_train.write('%d:::%s\n' % (self.mapped_sections[target['section']], ' '.join(target['sentence'].split())))
+                    file_train.write('%d%s%s\n' % (self.mapped_sections[target['section']], separator, ' '.join(target['sentence'].split())))
                 for target in result[count_train : count_total]:
-                    file_eval.write('%d:::%s\n' % (self.mapped_sections[target['section']], ' '.join(target['sentence'].split())))
+                    file_eval.write('%d%s%s\n' % (self.mapped_sections[target['section']], separator, ' '.join(target['sentence'].split())))
 
             file_train.close()
             file_eval.close()
@@ -193,7 +201,7 @@ class Extractor:
             result = self.db.fetch(sql.encode())
             
             for target in result:
-                file_test.write('%s:::%s\n' % (target['original_section'], ' '.join(target['sentence'].split())))
+                file_test.write('%s%s%s\n' % (target['original_section'], separator, ' '.join(target['sentence'].split())))
 
             file_test.close()
             print('... OK')
@@ -228,6 +236,35 @@ class Extractor:
                 
             file_test.close()
             print('... OK')
+            
+    def query_processing(self, argv, argv_origin, check_print=False):
+        if len(argv) < 2:
+            print('...%s %s %s' % (' ' + command_print if check_print else '', command_query, syntax_query))
+            return
+        
+        sql = ' '.join(argv_origin[1:])
+        
+        try :
+            result = self.db.fetch(sql.encode())
+
+            if check_print:
+                print(json.dumps(result, indent=4))
+                
+            else:
+                self.exist_dir()
+                file_test = open(path_test +  'test_' + str(len(result)) + '.csv', 'w')
+
+                for target in result:
+                    file_test.write('%s\n' % (' '.join(target['sentence'].split())))
+
+                file_test.close()
+                print('... OK')
+                                    
+        except Exception as error:
+            print('... Error: %s' % error)
+            
+        finally:
+            self.db.check_connection()
         
     def print_manual(self):
         print('\n* [command] [original_section | mapped_section name]+ [count]+\n')
@@ -237,6 +274,7 @@ class Extractor:
         print(' > %s: Stores the result values as two types based on the mapped sections. (train, eval)' % (command_map))
         print(' > %s: Stores the result values based on the original section. (test)' % (command_origin))
         print(' > %s: Stores unstructured test sentences. (test)' % (command_test))
+        print(' > %s: Use SQL Query to store the result value.' % (command_query))
         print(' > %s: Print the manual.' % (command_help))
         print(' > %s: Exit the program.\n' % (command_exit))
         
@@ -254,19 +292,22 @@ class Extractor:
         self.print_manual()
 
         while True:
-            command = input('\n> ').upper().split(' ')
+            command_origin = input('\n>').split(' ')
+            command = list(map(lambda s : s.upper(), command_origin))
             
             if (command[0] == command_exit):
                 print('... Bye')
                 break
             elif (command[0] == command_print):
-                self.print_processing(command)
+                self.print_processing(command, command_origin)
             elif (command[0] == command_map):
                 self.mapped_section_processing(command)
             elif (command[0] == command_origin):
                 self.original_section_processing(command)
             elif (command[0] == command_test):
                 self.test_processing(command)
+            elif (command[0] == command_query):
+                self.query_processing(command, command_origin)
             elif (command[0] == command_help):
                 self.print_manual()
             else:
