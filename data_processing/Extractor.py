@@ -7,7 +7,7 @@ path_train = 'data/train_data/'
 path_eval = 'data/eval_data/'
 path_test = 'data/test_data/'
 
-separator = ':::'
+separator = ','
 
 command_print = 'PRINT'
 command_map = 'MAP'
@@ -20,7 +20,7 @@ command_exit = 'EXIT'
 syntax_map = '[mapped_section name]+ [train count] [eval count]'
 syntax_origin = '[original_section name]+ [count]'
 syntax_test = '[count]'
-syntax_query = '[query]'
+syntax_query = '[classes] [train count] [eval count] [query]'
 
 class Extractor:
     def __init__(self):
@@ -164,9 +164,9 @@ class Extractor:
                 result = self.db.fetch(sql.encode())
 
                 for target in result[:count_train]:
-                    file_train.write('%d%s%s\n' % (self.mapped_sections[target['section']], separator, ' '.join(target['sentence'].split())))
+                    file_train.write('%d%s"%s"\n' % (self.mapped_sections[target['section']], separator, ' '.join(target['sentence'].split())))
                 for target in result[count_train : count_total]:
-                    file_eval.write('%d%s%s\n' % (self.mapped_sections[target['section']], separator, ' '.join(target['sentence'].split())))
+                    file_eval.write('%d%s"%s"\n' % (self.mapped_sections[target['section']], separator, ' '.join(target['sentence'].split())))
 
             file_train.close()
             file_eval.close()
@@ -201,7 +201,7 @@ class Extractor:
             result = self.db.fetch(sql.encode())
             
             for target in result:
-                file_test.write('%s%s%s\n' % (target['original_section'], separator, ' '.join(target['sentence'].split())))
+                file_test.write('%s%s"%s"\n' % (target['original_section'], separator, ' '.join(target['sentence'].split())))
 
             file_test.close()
             print('... OK')
@@ -232,17 +232,23 @@ class Extractor:
             result = self.db.fetch(sql.encode())
             
             for target in result:
-                file_test.write('%s\n' % (' '.join(target['sentence'].split())))
+                file_test.write('"%s"\n' % (' '.join(target['sentence'].split())))
                 
             file_test.close()
             print('... OK')
             
     def query_processing(self, argv, argv_origin, check_print=False):
-        if len(argv) < 2:
+        if len(argv) < 5:
             print('...%s %s %s' % (' ' + command_print if check_print else '', command_query, syntax_query))
             return
+        if (not self.check_pos_int(argv[2])) or (not self.check_pos_int(argv[3])):
+            return
         
-        sql = ' '.join(argv_origin[1:])
+        classes = argv[1]
+        count_train = int(argv[2])
+        count_eval = int(argv[3])
+        count_total = count_train + count_eval
+        sql = ' '.join(argv_origin[4:])
         
         try :
             result = self.db.fetch(sql.encode())
@@ -251,13 +257,21 @@ class Extractor:
                 print(json.dumps(result, indent=4))
                 
             else:
+                if len(result) < count_total:
+                    print('... The number of sentences exceeds the range. (%d / %d)' % (count_total, len(result)))
+                    return
+                
                 self.exist_dir()
-                file_test = open(path_test +  'test_' + str(len(result)) + '.csv', 'w')
-
-                for target in result:
-                    file_test.write('%s\n' % (' '.join(target['sentence'].split())))
-
-                file_test.close()
+                file_train = open(path_train +  'classes_' + classes + '_' + str(count_train) + '.csv', 'w')
+                file_eval = open(path_eval +  'classes_' + classes + '_' + str(count_eval) + '.csv', 'w')
+                
+                for target in result[:count_train]:
+                    file_train.write('%s%s"%s"\n' % (classes, separator, ' '.join(target['sentence'].split())))
+                for target in result[count_train : count_total]:
+                    file_eval.write('%s%s"%s"\n' % (classes, separator, ' '.join(target['sentence'].split())))
+                    
+                file_train.close()
+                file_eval.close()
                 print('... OK')
                                     
         except Exception as error:
