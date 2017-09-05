@@ -30,10 +30,6 @@ class Extractor:
         
         self.sentences_count_original = { }
         self.sentences_count_mapped = { 'BACKGROUND': 0, 'OBJECTIVE': 0, 'METHODS': 0, 'RESULTS': 0, 'CONCLUSIONS': 0, '-': 0}
-        for key in self.sentences_count_mapped:
-            sql = self.db.sql_select_section_count(key)
-            result = self.db.fetch(sql)
-            self.sentences_count_mapped[key] = int(result[0]['count'])
         
     def exist_dir(self):
         if not os.path.isdir(path_train):
@@ -43,11 +39,19 @@ class Extractor:
         if not os.path.isdir(path_test):
             os.mkdir(path_test)
             
-    def exist_mapped_section(self, list_section):
+    def exist_mapped_section(self, list_section):       
         for section in list_section:
             if (not section in self.mapped_sections) and (not section in self.mapped_sections_num):
                 print("... The '%s' section does not exist." % (section))
                 return False
+           
+            if section in self.mapped_sections_num:
+                section = self.mapped_sections_num[section]
+                
+            if self.sentences_count_mapped[section] == 0:    
+                sql = self.db.sql_select_section_count(section)
+                result = self.db.fetch(sql)
+                self.sentences_count_mapped[section] = int(result[0]['count'])
             
         return True
     
@@ -82,7 +86,7 @@ class Extractor:
         for section in self.replace_mapped_section(list_section):
             sentences = self.sentences_count_mapped[section]
             if count > sentences:
-                print('... The number of sentences exceeds the range. (%d / %d)' % (count, sentences))
+                print('... The number of sentences exceeds the range. Section: %s (%d / %d)' % (section, count, sentences))
                 return False
             
         return True
