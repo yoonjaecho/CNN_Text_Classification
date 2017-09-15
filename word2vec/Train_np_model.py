@@ -76,11 +76,11 @@ class Word2Vec:
         self.model.save(output_file)
 
 if __name__ == '__main__':
-    w2v = Word2Vec('input_abstract.txt')
+    w2v = Word2Vec('input_abstract_for_np.txt')
     w2v.train()
-    w2v.save('model')
+    w2v.save('model_np')
 
     # Load and test the model
-    model = gensim.models.Word2Vec.load('model')
+    model = gensim.models.Word2Vec.load('model_np')
     print(model['nicotine'])
     print(model.most_similar('nicotine'))
