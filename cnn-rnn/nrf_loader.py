@@ -9,10 +9,28 @@ Dataset = collections.namedtuple('Dataset', ['data', 'target'])
 
 def load_data():
   module_path = os.path.dirname(__file__)
-  train_path = os.path.join(module_path, 'nrf_data', 'nrf-traindata.csv')
-  test_path = os.path.join(module_path, 'nrf_data', 'nrf-testdata.csv')
+  #train_path = os.path.join(module_path, 'nrf_data', 'nrf-traindata.csv')
+  #test_path = os.path.join(module_path, 'nrf_data', 'nrf-testdata.csv')
+
   #train_path = os.path.join(module_path, 'nrf_data', 'train_10000.csv')
   #test_path = os.path.join(module_path, 'nrf_data', 'eval_10000.csv')
+
+  #train_path = os.path.join(module_path, 'nrf_data', 'train_10000_only_one_objective.csv')
+  #test_path = os.path.join(module_path, 'nrf_data', 'eval_10000_only_one_objective.csv')
+
+  train_path = os.path.join(module_path, 'nrf_data', 'train_10000_processed.csv')
+  test_path = os.path.join(module_path, 'nrf_data', 'eval_10000_processed.csv')
+
+  train = base.load_csv_without_header(train_path, target_dtype=np.int32, features_dtype=np.str, target_column=0)
+  test = base.load_csv_without_header(test_path, target_dtype=np.int32, features_dtype=np.str, target_column=0)
+
+  return base.Datasets(train=train, validation=None, test=test)
+
+
+def load_origin_data():
+  module_path = os.path.dirname(__file__)
+  train_path = os.path.join(module_path, 'nrf_data', 'nrf-traindata.csv')
+  test_path = os.path.join(module_path, 'nrf_data', 'nrf-testdata.csv')
 
   train = base.load_csv_without_header(train_path, target_dtype=np.int32, features_dtype=np.str, target_column=0)
   test = base.load_csv_without_header(test_path, target_dtype=np.int32, features_dtype=np.str, target_column=0)
@@ -22,10 +40,10 @@ def load_data():
 
 def load_full_data():
   module_path = os.path.dirname(__file__)
-  train_path = os.path.join(module_path, 'nrf_data', 'nrf-traindata.csv')
-  test_path = os.path.join(module_path, 'nrf_data', 'nrf-testdata.csv')
-  #train_path = os.path.join(module_path, 'nrf_data', 'train_10000.csv')
-  #test_path = os.path.join(module_path, 'nrf_data', 'eval_10000.csv')
+  #train_path = os.path.join(module_path, 'nrf_data', 'nrf-traindata.csv')
+  #test_path = os.path.join(module_path, 'nrf_data', 'nrf-testdata.csv')
+  train_path = os.path.join(module_path, 'nrf_data', 'train_10000.csv')
+  test_path = os.path.join(module_path, 'nrf_data', 'eval_10000.csv')
 
   train = base.load_csv_without_header(train_path, target_dtype=np.int32, features_dtype=np.str, target_column=0)
   test = base.load_csv_without_header(test_path, target_dtype=np.int32, features_dtype=np.str, target_column=0)
